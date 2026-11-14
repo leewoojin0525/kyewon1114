@@ -22,7 +22,10 @@ import {
 } from "@/lib/inquiries";
 import { deleteMedia, uploadPhoto } from "@/lib/media";
 import { appURL, isLive } from "@/lib/env";
+import { prepareDirectUpload, finishDirectUpload } from "@/lib/direct-upload";
+import { after } from "next/server";
 export const runtime = "nodejs";
+export const maxDuration = 300;
 export const dynamic = "force-dynamic";
 type Context = { params: Promise<{ path: string[] }> };
 const uuid = z.string().uuid();
@@ -38,10 +41,15 @@ async function handle(req: Request, ctx: Context) {
           503,
           "문의 접수를 준비 중입니다. 공개된 연락처로 문의해 주세요.",
         );
-      return json(
-        await submitInquiry(await readJSON(req, 20000), networkKey(req)),
-        201,
+      const receipt = await submitInquiry(
+        await readJSON(req, 20000),
+        networkKey(req),
       );
+      if (process.env.VERCEL)
+        after(async () => {
+          await runWorker().catch(() => {});
+        });
+      return json(receipt, 201);
     }
     if (route === "login" && method === "POST") {
       await rateLimit(`login:${networkKey(req)}`, 25, 900);
@@ -149,6 +157,16 @@ async function handle(req: Request, ctx: Context) {
           ),
         );
       }
+    }
+    if (route === "media/prepare" && method === "POST") {
+      await rateLimit(`upload:${actor.id}`, 100, 3600);
+      return json(await prepareDirectUpload(actor));
+    }
+    if (route === "media/complete" && method === "POST") {
+      const { pathname } = z
+        .object({ pathname: z.string().max(100) })
+        .parse(await readJSON(req, 1000));
+      return json(await finishDirectUpload(actor, pathname), 201);
     }
     if (route === "media" && method === "GET")
       return json({

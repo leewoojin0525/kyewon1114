@@ -22,7 +22,10 @@
 - KYOBO HOTTRACKS is a Manual Design project; omit the branch from its public name and retain its original first cover.
 
 - Samjeon is second in the project list; Gong Cha takes its former last position.
-- The user resumed Yeouido/Gwangjang replacement after confirming upload completion. Use only the final 23-photo folder 1wWDe4vaeJFqMxcOGO9-7v6woVf6D60iW for the replacement. Earlier partial uploads remain archived. Yeonhui Seed replacement photos are awaiting the user.
+- The user resumed Yeouido/Gwangjang replacement after confirming upload completion. Use only the final 23-photo folder 1wWDe4vaeJFqMxcOGO9-7v6woVf6D60iW. Earlier partial uploads remain archived. Public title is S-house; cover is selected photo 9.
+- HEIM and Tied swapped positions: Tied order 3, HEIM order 11. Samjeon uses landscape evening exterior photo 14 after the user reconsidered the portrait front elevation.
+- Yeonhui Seed now uses all 22 newly supplied photographs from folder 1l_WHiIKbIEBjkr4REJsO3Br8y5WBpfT1; selected photo 7 is the cover. User authorization supersedes the inherited folder label.
+- The user requested GitHub and Vercel deployment and explicitly selected the free configuration. Do not upgrade to paid plans. Preserve full local originals; prepare smaller deployment files without removing public photographs.
 - Remove the public Profile archive link. Preserve biography source evidence privately.
 
 <!-- BEGIN:nextjs-agent-rules -->

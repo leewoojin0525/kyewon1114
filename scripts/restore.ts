@@ -43,9 +43,10 @@ await client.connect();
 const quote = (s: string) => `"${s.replaceAll('"', '""')}"`;
 try {
   const occupied = await client.query(
-    "SELECT 1 FROM information_schema.tables WHERE table_schema NOT IN ('pg_catalog','information_schema') LIMIT 1",
+    "SELECT 1 FROM information_schema.tables WHERE table_schema IN ('public','cms') LIMIT 1",
   );
-  if (occupied.rowCount) throw new Error("복원 DB는 비어 있어야 합니다.");
+  if (occupied.rowCount)
+    throw new Error("복원 대상 앱 스키마(public/cms)는 비어 있어야 합니다.");
   await client.query("BEGIN");
   for (const sql of backup.schema) await client.query(sql);
   // Migrations seed metadata; restore its exact snapshot below.

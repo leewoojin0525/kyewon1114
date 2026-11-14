@@ -6,10 +6,6 @@ for (const name of [
   "DATABASE_URL",
   "PAYLOAD_SECRET",
   "RATE_LIMIT_SECRET",
-  "S3_ENDPOINT",
-  "S3_BUCKET",
-  "S3_ACCESS_KEY_ID",
-  "S3_SECRET_ACCESS_KEY",
   "RESEND_API_KEY",
   "MAIL_FROM",
   "NOTIFICATION_TO",
@@ -19,8 +15,18 @@ if (process.env.APP_ENV !== "production")
   failures.push("APP_ENV가 production이 아님");
 if (!process.env.APP_URL?.startsWith("https://"))
   failures.push("HTTPS 공개 주소 미설정");
-if (process.env.STORAGE_DRIVER !== "s3")
-  failures.push("영구 S3/R2 저장소 미연결");
+if (process.env.STORAGE_DRIVER === "vercel-blob") {
+  if (!process.env.BLOB_READ_WRITE_TOKEN)
+    failures.push("비공개 Blob 저장소 미연결");
+} else if (process.env.STORAGE_DRIVER === "s3") {
+  for (const name of [
+    "S3_ENDPOINT",
+    "S3_BUCKET",
+    "S3_ACCESS_KEY_ID",
+    "S3_SECRET_ACCESS_KEY",
+  ])
+    if (!process.env[name]) failures.push(`${name} 미설정`);
+} else failures.push("영구 사진 저장소 미연결");
 if (
   process.env.MAIL_ADAPTER !== "resend" ||
   process.env.ALLOW_EXTERNAL_MAIL !== "true"

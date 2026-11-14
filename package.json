@@ -28,6 +28,7 @@
     "@payloadcms/db-postgres": "3.93.0",
     "@payloadcms/next": "3.93.0",
     "@payloadcms/translations": "3.93.0",
+    "@vercel/blob": "2.9.0",
     "graphql": "16.12.0",
     "next": "16.4.6",
     "payload": "3.93.0",

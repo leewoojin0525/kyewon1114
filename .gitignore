@@ -16,3 +16,5 @@ PRD.md
 docs/*
 !docs/operations.md
 !docs/acceptance.md
+.env*
+!.env.example

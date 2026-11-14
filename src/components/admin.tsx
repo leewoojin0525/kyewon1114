@@ -670,13 +670,26 @@ export function Admin() {
       prev.map((u, i) => (i === index ? { file, status: "업로드 중…" } : u)),
     );
     try {
-      const r = await fetch("/api/wovn/media", {
-        method: "POST",
-        headers: { "Content-Type": file.type },
-        body: file,
-      });
-      const v = await r.json();
-      if (!r.ok) throw new Error(v.error);
+      if (file.size > 25 * 1024 * 1024)
+        throw new Error("사진은 한 장당 25MB까지 가능합니다.");
+      const prepared = await api("media/prepare", "POST", {});
+      if (prepared.direct) {
+        const { put } = await import("@vercel/blob/client");
+        await put(prepared.pathname, file, {
+          access: "private",
+          token: prepared.token,
+          contentType: file.type,
+        });
+        await api("media/complete", "POST", { pathname: prepared.pathname });
+      } else {
+        const r = await fetch("/api/wovn/media", {
+          method: "POST",
+          headers: { "Content-Type": file.type },
+          body: file,
+        });
+        const v = await r.json();
+        if (!r.ok) throw new Error(v.error);
+      }
       setUploads((prev) =>
         prev.map((u, i) => (i === index ? { file, status: "등록 완료" } : u)),
       );

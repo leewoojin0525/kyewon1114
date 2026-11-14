@@ -10,6 +10,11 @@ import {
 } from "@aws-sdk/client-s3";
 import { AppError, pool, transaction, audit, type Actor } from "./db";
 import { isLive, required } from "./env";
+import {
+  put as vercelPut,
+  get as vercelGet,
+  del as vercelDelete,
+} from "@vercel/blob";
 const sizes = [640, 960, 1440, 1920];
 function s3() {
   return new S3Client({
@@ -28,7 +33,14 @@ function localPath(key: string) {
   return resolve(process.env.MEDIA_DIRECTORY || ".data/media", key);
 }
 export async function putBlob(key: string, data: Buffer, type: string) {
-  if (process.env.STORAGE_DRIVER === "s3")
+  if (process.env.STORAGE_DRIVER === "vercel-blob")
+    await vercelPut(key, data, {
+      access: "private",
+      contentType: type,
+      addRandomSuffix: false,
+      allowOverwrite: false,
+    });
+  else if (process.env.STORAGE_DRIVER === "s3")
     await s3().send(
       new PutObjectCommand({
         Bucket: required("S3_BUCKET"),
@@ -44,6 +56,12 @@ export async function putBlob(key: string, data: Buffer, type: string) {
   }
 }
 export async function getBlob(key: string) {
+  if (process.env.STORAGE_DRIVER === "vercel-blob") {
+    const result = await vercelGet(key, { access: "private" });
+    if (!result || result.statusCode !== 200)
+      throw new AppError(404, "사진이 없습니다.");
+    return Buffer.from(await new Response(result.stream).arrayBuffer());
+  }
   if (process.env.STORAGE_DRIVER === "s3") {
     const r = await s3().send(
       new GetObjectCommand({ Bucket: required("S3_BUCKET"), Key: key }),
@@ -53,7 +71,8 @@ export async function getBlob(key: string) {
   return readFile(localPath(key));
 }
 async function deleteBlob(key: string) {
-  if (process.env.STORAGE_DRIVER === "s3")
+  if (process.env.STORAGE_DRIVER === "vercel-blob") await vercelDelete(key);
+  else if (process.env.STORAGE_DRIVER === "s3")
     await s3().send(
       new DeleteObjectCommand({ Bucket: required("S3_BUCKET"), Key: key }),
     );

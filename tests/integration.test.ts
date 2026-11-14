@@ -22,6 +22,54 @@ const dbName = `wovn_test_${Date.now()}`,
   admin = new pg.Pool({ connectionString: process.env.DATABASE_URL }),
   base = "http://127.0.0.1:3000";
 const password = randomBytes(24).toString("hex");
+test("direct uploads require authentication, same origin, and an actor-owned path", async () => {
+  const { uploadPathBelongsTo } = await import("../src/lib/direct-upload");
+  const id = randomUUID();
+  assert.equal(
+    uploadPathBelongsTo({ id: 7, role: "editor" }, `staging/7/${id}`),
+    true,
+  );
+  for (const path of [
+    `staging/8/${id}`,
+    `staging/7/../${id}`,
+    `https://example.com/${id}`,
+    `${id}/original`,
+  ])
+    assert.equal(uploadPathBelongsTo({ id: 7, role: "editor" }, path), false);
+  assert.equal((await request("media/prepare", "POST", {})).status, 401);
+  assert.equal(
+    (
+      await request(
+        "media/prepare",
+        "POST",
+        {},
+        editorCookie,
+        "https://other.example",
+      )
+    ).status,
+    403,
+  );
+  const prepared = await request("media/prepare", "POST", {}, editorCookie);
+  assert.equal(prepared.status, 200);
+  assert.deepEqual(await prepared.json(), { direct: false });
+});
+test("scheduled maintenance rejects requests without the configured secret", async () => {
+  const maintenance = await import("../src/app/api/maintenance/route");
+  assert.equal(
+    (await maintenance.GET(new Request(`${base}/api/maintenance`))).status,
+    401,
+  );
+  assert.equal(
+    (
+      await maintenance.GET(
+        new Request(`${base}/api/maintenance`, {
+          headers: { authorization: "Bearer invalid" },
+        }),
+      )
+    ).status,
+    401,
+  );
+});
 async function request(
   path: string,
   method = "GET",
@@ -654,22 +702,37 @@ test("세션 폐기 후 토큰 재사용 거부", async () => {
   );
 });
 
-
 test("Press: 단일 지면과 편집 순서·상단 고정은 재발행 뒤에도 유지", async () => {
   const ids: string[] = [];
   for (const [slug, order, pinned] of [
-    ["press-newer", 1, false], ["press-older", 2, false], ["press-pinned", 3, true],
+    ["press-newer", 1, false],
+    ["press-older", 2, false],
+    ["press-pinned", 3, true],
   ] as const) {
     const saved = await content.createContent(owner, "journal", {
-      ...validData(slug), slug, category: "잡지 게재", order, pinned, blocks: [],
+      ...validData(slug),
+      slug,
+      category: "잡지 게재",
+      order,
+      pinned,
+      blocks: [],
     });
     ids.push(saved.id);
     await content.workflow(owner, saved.id, "publish", saved.version);
   }
   await content.workflow(owner, ids[1], "publish", 1);
-  assert.deepEqual((await content.listPublic("journal")).map(p => p.id), [ids[2], ids[0], ids[1]]);
+  assert.deepEqual(
+    (await content.listPublic("journal")).map((p) => p.id),
+    [ids[2], ids[0], ids[1]],
+  );
   const invalid = await content.createContent(owner, "journal", {
-    ...validData("press-unconfirmed"), slug: "press-unconfirmed", category: "잡지 게재", blocks: [], creditConfirmed: false,
+    ...validData("press-unconfirmed"),
+    slug: "press-unconfirmed",
+    category: "잡지 게재",
+    blocks: [],
+    creditConfirmed: false,
   });
-  await assert.rejects(content.workflow(owner, invalid.id, "publish", invalid.version));
+  await assert.rejects(
+    content.workflow(owner, invalid.id, "publish", invalid.version),
+  );
 });
