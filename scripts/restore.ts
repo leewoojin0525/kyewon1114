@@ -56,28 +56,35 @@ try {
       (t: any) => `${t.schema}.${t.name}` === name,
     );
     const tableName = `${quote(table.schema)}.${quote(table.name)}`;
-    for (const row of table.rows) {
-      const columns = table.columns.map((c: any) => c.name);
-      const values = table.columns.map((c: any) =>
-        c.type === "jsonb" || c.type === "json"
-          ? JSON.stringify(row[c.name])
-          : row[c.name],
+    const columns = table.columns.map((c: any) => c.name);
+    for (let offset = 0; offset < table.rows.length; offset += 100) {
+      const batch = table.rows.slice(offset, offset + 100);
+      const values = batch.flatMap((row: any) =>
+        table.columns.map((c: any) =>
+          c.type === "jsonb" || c.type === "json"
+            ? JSON.stringify(row[c.name])
+            : row[c.name],
+        ),
       );
+      const placeholders = batch
+        .map(
+          (_: any, rowIndex: number) =>
+            `(${columns.map((_: string, colIndex: number) => `$${rowIndex * columns.length + colIndex + 1}`).join(",")})`,
+        )
+        .join(",");
       await client.query(
-        `INSERT INTO ${tableName} (${columns.map(quote).join(",")}) VALUES(${columns.map((_: string, i: number) => `$${i + 1}`).join(",")})`,
+        `INSERT INTO ${tableName} (${columns.map(quote).join(",")}) VALUES ${placeholders}`,
         values,
       );
     }
-    for (const col of table.columns) {
-      const {
-        rows: [r],
-      } = await client.query(
-        "SELECT pg_get_serial_sequence($1,$2) AS sequence",
-        [`${table.schema}.${table.name}`, col.name],
-      );
+    const { rows: sequences } = await client.query(
+      "SELECT column_name AS name,pg_get_serial_sequence($1,column_name) AS sequence FROM information_schema.columns WHERE table_schema=$2 AND table_name=$3",
+      [`${table.schema}.${table.name}`, table.schema, table.name],
+    );
+    for (const r of sequences) {
       if (r.sequence)
         await client.query(
-          `SELECT setval($1, COALESCE((SELECT MAX(${quote(col.name)}) FROM ${tableName}),1), EXISTS(SELECT 1 FROM ${tableName}))`,
+          `SELECT setval($1, COALESCE((SELECT MAX(${quote(r.name)}) FROM ${tableName}),1), EXISTS(SELECT 1 FROM ${tableName}))`,
           [r.sequence],
         );
     }

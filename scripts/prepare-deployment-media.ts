@@ -50,6 +50,36 @@ for (const m of [...media].sort(
     const bytes = await readFile(input);
     if (hash(bytes) !== originals.get(key))
       throw new Error("Source image checksum mismatch");
+    let existing: Buffer | undefined;
+    try {
+      existing = await readFile(output);
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+    }
+    if (existing) {
+      if (hash(existing) !== hash(bytes)) {
+        if (
+          key !== m.original_key ||
+          m.mime !== "image/png" ||
+          (await sharp(existing).metadata()).format !== "webp"
+        )
+          throw new Error("Unexpected existing deployment file");
+        const a = await sharp(bytes).ensureAlpha().raw().toBuffer();
+        const b = await sharp(existing).ensureAlpha().raw().toBuffer();
+        if (!a.equals(b))
+          throw new Error("Existing lossless image pixel verification failed");
+        converted.push({
+          id: m.id,
+          before: bytes.length,
+          after: existing.length,
+        });
+        deployBytes -= bytes.length - existing.length;
+        m.mime = "image/webp";
+        m.bytes = existing.length;
+      }
+      blobs.push({ key, sha256: hash(existing) });
+      continue;
+    }
     if (
       key === m.original_key &&
       m.mime === "image/png" &&
@@ -100,7 +130,7 @@ for (const table of snapshot.tables) {
       user.reset_password_expiration = null;
     }
 }
-if (deployBytes >= 900_000_000 || blobs.length >= 1850)
+if (deployBytes >= 950_000_000 || blobs.length >= 1850)
   throw new Error(
     `Free-tier target not met: ${deployBytes} bytes, ${blobs.length} files`,
   );
