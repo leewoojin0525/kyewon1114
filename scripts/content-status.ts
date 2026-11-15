@@ -28,9 +28,10 @@ try {
       version: p.version,
       pages: imagesIn(p.data).length,
     })),
-    holds: {
-      gwangjang: "User confirmed final upload completion; replaced with 23 selected photographs.",
-      yeonhuiSeed: "Awaiting new photographs from user.",
+    selections: {
+      sHouse: "23 final photographs; S-house title; cover photograph 9.",
+      yeonhuiSeed: "22 newly supplied photographs; cover photograph 7.",
+      samjeon: "31 photographs; landscape evening exterior cover photograph 14.",
     },
   };
   await writeFile("docs/content-status.json", JSON.stringify(result, null, 2));

@@ -2,7 +2,7 @@ import { readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { parseEnv } from "node:util";
 import { createHash } from "node:crypto";
-import { put, list, head, get } from "@vercel/blob";
+import { put, list, get } from "@vercel/blob";
 
 const directory = resolve(".data/deployment-snapshot");
 const secrets = parseEnv(
@@ -36,11 +36,34 @@ do {
   for (const blob of page.blobs) existing.add(blob.pathname);
   cursor = page.hasMore ? page.cursor : undefined;
 } while (cursor);
-for (let i = 0; i < snapshot.blobs.length; i += 4) {
-  const batch = snapshot.blobs.slice(i, i + 4);
+// Check the actual store too: an old checkpoint must not hide a missing file.
+const pending = snapshot.blobs.filter(
+  (blob: any) => !existing.has(blob.key) || completed[blob.key] !== blob.sha256,
+);
+const prioritySlug = process.env.UPLOAD_PRIORITY_PROJECT;
+if (prioritySlug) {
+  const content = snapshot.tables
+    .find((t: any) => t.name === "w_content")
+    .rows.find((c: any) => c.public_slug === prioritySlug);
+  if (!content) throw new Error("Priority project not found");
+  const ids = new Set(
+    snapshot.tables
+      .find((t: any) => t.name === "w_media_refs")
+      .rows.filter((r: any) => r.content_id === content.id)
+      .map((r: any) => r.media_id),
+  );
+  pending.sort(
+    (a: any, b: any) =>
+      Number(ids.has(b.key.split("/")[0])) -
+      Number(ids.has(a.key.split("/")[0])),
+  );
+}
+const concurrency = 8;
+console.log(`Resuming ${pending.length} files`);
+for (let i = 0; i < pending.length; i += concurrency) {
+  const batch = pending.slice(i, i + concurrency);
   const results = await Promise.allSettled(
     batch.map(async (blob: any) => {
-      if (completed[blob.key] === blob.sha256) return;
       const data = await readFile(resolve(directory, "media", blob.key));
       if (hash(data) !== blob.sha256)
         throw new Error("Image checksum mismatch");
@@ -78,7 +101,7 @@ for (let i = 0; i < snapshot.blobs.length; i += 4) {
         );
     throw new Error("Upload interrupted; progress saved for retry");
   }
-  if (i % 100 === 0)
+  if (i % 80 === 0 || i + concurrency >= pending.length)
     console.log(
       `Uploaded ${Object.keys(completed).length}/${snapshot.blobs.length}`,
     );
