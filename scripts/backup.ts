@@ -3,6 +3,10 @@ import { resolve, dirname } from "node:path";
 import { createHash } from "node:crypto";
 import { pool } from "../src/lib/db";
 import { getBlob } from "../src/lib/media";
+import {
+  readArchivedOriginal,
+  type ArchivedOriginal,
+} from "./read-archived-original";
 const directory = resolve(
   ".backups",
   new Date().toISOString().replace(/[:.]/g, "-"),
@@ -44,12 +48,34 @@ try {
     remaining.delete(next);
   }
   const blobs = [];
+  const copiedKeys = new Set<string>();
+  const archived = new Map<string, ArchivedOriginal>(
+    (exported.find((t) => t.name === "w_media_archives")?.rows || []).map(
+      (r: ArchivedOriginal) => [r.original_key, r],
+    ),
+  );
   for (const m of exported.find((t) => t.name === "w_media")?.rows || [])
-    for (const key of [
+    for (const logicalKey of new Set([
       m.original_key,
       ...m.derivatives.map((d: { key: string }) => d.key),
-    ]) {
-      const buffer = await getBlob(key),
+    ])) {
+      const packed = m.derivatives.find(
+        (d: { key: string }) => d.key === logicalKey,
+      )?.packed;
+      const key = packed?.key || logicalKey;
+      if (copiedKeys.has(key)) continue;
+      copiedKeys.add(key);
+      const archive = archived.get(key);
+      // Run production backups on the archive host, or provide a mounted copy.
+      // A missing archive must fail loudly, never produce an incomplete backup.
+      const buffer =
+          archive && process.env.STORAGE_DRIVER !== "local"
+            ? await readArchivedOriginal(
+                process.env.ORIGINAL_ARCHIVE_DIRECTORY ||
+                  ".data/original-archives",
+                archive,
+              )
+            : await getBlob(key),
         target = resolve(directory, "media", key);
       await mkdir(dirname(target), { recursive: true, mode: 0o700 });
       await writeFile(target, buffer, { mode: 0o600 });

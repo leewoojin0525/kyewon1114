@@ -66,3 +66,33 @@ pnpm restore .backups/선택한백업폴더
 - 계정 중지/역할 변경/비밀번호 재설정: 기존 세션을 종료. 직원은 문의 기본 접근 불가.
 
 운영 로그에 문의 원문·연락처·토큰·DB 매개변수를 출력하지 않도록 애플리케이션 오류를 일반화했습니다. 프록시·호스팅 로그에도 본문 수집을 켜지 마세요.
+# Offline originals and web media
+
+The 2026-11-18 storage maintenance keeps immutable media rows and historical
+publication snapshots. Duplicate high-resolution originals are archived privately
+on the archive host; published and historical display derivatives remain in Blob.
+`w_media_archives` records the archive ID, original key, exact byte count, and
+SHA-256 digest. Never delete the last verified archive copy.
+
+Run production backups on the archive host, with `ORIGINAL_ARCHIVE_DIRECTORY`
+pointing to `.data/original-archives` or a verified copy. `pnpm backup` validates
+archived originals and includes their full bytes in the backup. It intentionally
+fails if an archive is absent or damaged. Local restored backups contain those
+originals in the restored media directory and do not require an archive mount.
+
+Web-only imports may use the same immutable WebP object as their uploaded web
+master and display derivative. Backup code deduplicates these keys. The source
+camera/portfolio original remains in the separate private source archive.
+
+The maintenance plan, source matching, upload checksums, publication versions,
+and final public-image verification are stored privately under
+`.data/photo-replacement-20261118`. The photo reference numbers in its plan are
+stable identifiers; do not renumber them when changing display order.
+
+The full photo-library import can store immutable WebP files in private,
+content-addressed bundles to reduce Blob upload operations. Each derivative keeps
+its public logical key and a private `packed` byte-range descriptor. The media
+route checks current publication access before reading the exact range, and
+checks its SHA-256 digest before serving it. Bundle keys are never public routes.
+Backups copy each physical bundle once; restores preserve the same layout.
+Cloud upload skips originals already held in the verified offline archive.

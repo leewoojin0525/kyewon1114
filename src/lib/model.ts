@@ -73,7 +73,7 @@ export const documentSchema = z.object({
   creditConfirmed: z.boolean().default(false),
   publishReviewed: z.boolean().default(false),
   hero: photoSchema.optional(),
-  blocks: z.array(blockSchema).max(80).default([]),
+  blocks: z.array(blockSchema).max(300).default([]),
   order: z.number().int().min(0).max(9999).default(9999),
   pinned: z.boolean().default(false),
   author: z.string().max(100).default(""),

@@ -11,6 +11,12 @@ import {
 import { AppError, pool, transaction, audit, type Actor } from "./db";
 import { isLive, required } from "./env";
 import {
+  readLocalPackedMedia,
+  validatePackedMedia,
+  verifyPackedBytes,
+  type PackedMedia,
+} from "./packed-media";
+import {
   put as vercelPut,
   get as vercelGet,
   del as vercelDelete,
@@ -27,7 +33,11 @@ function s3() {
   });
 }
 function localPath(key: string) {
-  if (!/^[a-f0-9-]+\/(original|\d+\.webp)$/.test(key))
+  if (
+    !/^(?:[a-f0-9-]+\/(?:original|\d+\.webp)|packs\/[a-f0-9]{64}\.bin)$/.test(
+      key,
+    )
+  )
     throw new Error("Invalid storage key");
   if (isLive) throw new Error("운영 환경에는 영구 객체 저장소가 필요합니다.");
   return resolve(process.env.MEDIA_DIRECTORY || ".data/media", key);
@@ -55,19 +65,52 @@ export async function putBlob(key: string, data: Buffer, type: string) {
     await writeFile(p, data, { flag: "wx" });
   }
 }
-export async function getBlob(key: string) {
+export async function getBlob(key: string, packed?: PackedMedia) {
+  if (packed) validatePackedMedia(packed);
   if (process.env.STORAGE_DRIVER === "vercel-blob") {
-    const result = await vercelGet(key, { access: "private" });
+    const result = await vercelGet(packed?.key || key, {
+      access: "private",
+      ...(packed
+        ? {
+            headers: {
+              Range: `bytes=${packed.offset}-${packed.offset + packed.bytes - 1}`,
+            },
+            abortSignal: AbortSignal.timeout(30000),
+          }
+        : {}),
+    });
     if (!result || result.statusCode !== 200)
       throw new AppError(404, "사진이 없습니다.");
-    return Buffer.from(await new Response(result.stream).arrayBuffer());
+    if (packed) {
+      const expected = `bytes ${packed.offset}-${packed.offset + packed.bytes - 1}/`;
+      // Fail closed if storage ignores Range: never expose adjacent private images.
+      if (
+        !result.headers.get("content-range")?.startsWith(expected) ||
+        result.blob.size !== packed.bytes
+      ) {
+        await result.stream.cancel();
+        throw new Error("Storage did not honor the photo byte range");
+      }
+    }
+    const data = Buffer.from(await new Response(result.stream).arrayBuffer());
+    return packed ? verifyPackedBytes(data, packed) : data;
   }
   if (process.env.STORAGE_DRIVER === "s3") {
     const r = await s3().send(
-      new GetObjectCommand({ Bucket: required("S3_BUCKET"), Key: key }),
+      new GetObjectCommand({
+        Bucket: required("S3_BUCKET"),
+        Key: packed?.key || key,
+        ...(packed
+          ? {
+              Range: `bytes=${packed.offset}-${packed.offset + packed.bytes - 1}`,
+            }
+          : {}),
+      }),
     );
-    return Buffer.from(await r.Body!.transformToByteArray());
+    const data = Buffer.from(await r.Body!.transformToByteArray());
+    return packed ? verifyPackedBytes(data, packed) : data;
   }
+  if (packed) return readLocalPackedMedia(localPath(packed.key), packed);
   return readFile(localPath(key));
 }
 async function deleteBlob(key: string) {

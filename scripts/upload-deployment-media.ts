@@ -19,6 +19,9 @@ const hash = (data: Buffer | string) =>
 if (hash(raw) !== manifest.sha256)
   throw new Error("Snapshot checksum mismatch");
 const snapshot = JSON.parse(raw);
+const archivedKeys = new Set<string>(
+  (snapshot.tables.find((t: any) => t.name === "w_media_archives")?.rows || []).map((r: any) => r.original_key),
+);
 const types = new Map<string, string>(
   snapshot.tables
     .find((t: any) => t.name === "w_media")
@@ -38,7 +41,7 @@ do {
 } while (cursor);
 // Check the actual store too: an old checkpoint must not hide a missing file.
 const pending = snapshot.blobs.filter(
-  (blob: any) => !existing.has(blob.key) || completed[blob.key] !== blob.sha256,
+  (blob: any) => !archivedKeys.has(blob.key) && (!existing.has(blob.key) || completed[blob.key] !== blob.sha256),
 );
 const prioritySlug = process.env.UPLOAD_PRIORITY_PROJECT;
 if (prioritySlug) {
@@ -84,7 +87,7 @@ for (let i = 0; i < pending.length; i += concurrency) {
         await put(blob.key, data, {
           access: "private",
           token,
-          contentType: types.get(blob.key) || "image/webp",
+          contentType: blob.key.startsWith("packs/") ? "application/octet-stream" : types.get(blob.key) || "image/webp",
           addRandomSuffix: false,
           allowOverwrite: false,
         });

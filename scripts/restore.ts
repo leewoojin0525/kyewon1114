@@ -32,7 +32,11 @@ if (createHash("sha256").update(raw).digest("hex") !== manifest.sha256)
 const backup = JSON.parse(raw);
 if (backup.format !== 1) throw new Error("지원하지 않는 백업 형식");
 for (const blob of backup.blobs) {
-  if (!/^[a-f0-9-]+\/(original|\d+\.webp)$/.test(blob.key))
+  if (
+    !/^(?:[a-f0-9-]+\/(?:original|\d+\.webp)|packs\/[a-f0-9]{64}\.bin)$/.test(
+      blob.key,
+    )
+  )
     throw new Error("잘못된 미디어 키");
   const data = await readFile(resolve(directory, "media", blob.key));
   if (createHash("sha256").update(data).digest("hex") !== blob.sha256)

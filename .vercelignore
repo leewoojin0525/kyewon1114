@@ -2,6 +2,8 @@
 .backups
 assets
 docs
+output
+tmp
 PRD.md
 node_modules
 .next

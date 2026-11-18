@@ -10,6 +10,8 @@ node_modules/
 .DS_Store
 coverage/
 artifacts/
+output/
+tmp/
 .vercel/
 assets/
 PRD.md

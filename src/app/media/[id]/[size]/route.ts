@@ -2,6 +2,7 @@ import { z } from "zod";
 import { authenticate } from "@/lib/auth";
 import { pool } from "@/lib/db";
 import { getBlob } from "@/lib/media";
+import type { PackedMedia } from "@/lib/packed-media";
 export const dynamic = "force-dynamic";
 export async function GET(
   req: Request,
@@ -24,11 +25,11 @@ export async function GET(
       return new Response("Not found", { status: 404 });
     }
   const derivative = media.derivatives.find(
-    (d: { key: string }) => d.key === `${id}/${size}`,
+    (d: { key: string; packed?: PackedMedia }) => d.key === `${id}/${size}`,
   );
   if (!derivative) return new Response("Not found", { status: 404 });
   try {
-    return new Response(new Uint8Array(await getBlob(derivative.key)), {
+    return new Response(new Uint8Array(await getBlob(derivative.key, derivative.packed)), {
       headers: {
         "Content-Type": "image/webp",
         "Cache-Control": "private, no-store",
