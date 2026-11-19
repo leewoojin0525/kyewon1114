@@ -41,7 +41,7 @@ text(34,H-125,'사진 고정 번호로 순서 변경과 삭제를 요청해 주�
 text(34,H-145,'예: Samjeon-014를 대표사진으로 / Tied-008 삭제 / S-house-009를 두 번째로',9)
 text(34,H-164,'작품명-번호는 고정 파일 번호입니다. 현재 순서와 대표사진 여부는 별도로 표시합니다.',8)
 text(34,H-181,'현재 홈페이지에 등록된 사진만 수록한 새 목록입니다.',8)
-text(34,H-198,'고용량 원본 재변환 작품과 기존 사진 유지 작품을 구분했습니다.',8)
+text(34,H-198,'저용량 사진도 포함합니다. 다음 페이지와 각 사진에 해상도 구분을 표시했습니다.',8)
 text(34,H-220,'작품 번호',8);text(102,H-220,'프로젝트',8);text(W-87,H-220,'사진 수',8)
 y=H-241
 for i,p in enumerate(plan['projects'],1):
@@ -49,12 +49,13 @@ for i,p in enumerate(plan['projects'],1):
  text(34,y,f'P{i:02d}',8,'Arial');text(102,y,p['title'],8,'Arial');text(W-80,y,str(count),8,'Arial')
  y-=18
 c.showPage()
-start('기존 사진 유지 작품', '저용량 자료 또는 원본 출처 확인이 필요한 작품')
-y=H-130
+start('프로젝트별 해상도 구분', '저용량 사진도 홈페이지와 목록에 포함했습니다.')
+y=H-120
 for g in scope['groups']:
- if '유지' in g['sourceStatus']:
-  text(34,y,g['title'],11,'Arial');text(34,y-20,g['sourceStatus'],9);y-=58
-text(34,90,'이 작품의 사진은 삭제하지 않고 현재 등록 상태를 그대로 유지했습니다.',9)
+ text(34,y,g['title'],8,'Arial')
+ text(275,y,g['sourceStatus'],7,color='#7751a8' if '재확인' in g['sourceStatus'] else '#a95512' if '저용량' in g['sourceStatus'] else '#237248')
+ y-=23
+text(34,90,'저용량 표시는 보관 원본의 해상도 기준이며, 원본을 억지로 확대하지 않습니다.',8)
 c.showPage()
 for idx,p in enumerate(plan['projects'],1):
  photos=sorted([x for x in plan['photos'] if x['projectId']==p['id']],key=lambda x:x['order'])
@@ -71,6 +72,7 @@ for idx,p in enumerate(plan['projects'],1):
    text(left,top-159,x['reference'],10,'Arial')
    text(left,top-173,f'Order {x["order"]:03d}'+('  COVER' if x['placement']=='cover' else '')+('  [existing]' if x.get('retainedExisting') else ''),7.8,'Arial')
    text(left,top-186,f'{x["width"]} x {x["height"]}  /  {x["bytes"]/1000:.0f} KB',7,'Arial','#777777')
+   text(left,top-198,x.get('sourceStatus',''),6.5,color='#a95512' if x.get('lowResolution') else '#7751a8' if '재확인' in x.get('sourceStatus','') else '#237248')
    c.setStrokeColorRGB(.82,.82,.82);c.line(left,top-204,left+cw,top-204)
   c.showPage()
 c.save()

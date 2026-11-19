@@ -38,6 +38,13 @@
 - KyoboD and KyoboS remain separate during the reset. Support a project containing only its verified cover photograph; publication still requires Owner authority, expected version, rights confirmation, alternative text, and an existing media asset.
 - Use file references and current display order as separate columns in fresh lists. Start a new review-request state for the rebuilt catalog so earlier deletion requests do not silently apply again.
 
+## Follow-up user revision, 2026-11-19: retain low-resolution photographs
+
+- Restore the 115 Drive-source low-resolution photographs removed by the high-resolution-only pass. Keep low-resolution-only projects public. The current set is 26 projects / 806 photographs; 202 individual photographs are labeled low-resolution in private/user-facing catalogs, not on the public portfolio.
+- Catalogs distinguish verified high-resolution derivatives, low-resolution photographs (restored or retained), and retained photographs requiring original-source confirmation. Do not omit a photograph solely for low resolution and do not upscale it.
+- Restore the established project ordering from the pre-full-library project order: KyoboD first, Samjeon second, Tied third, Marina in its original position, Gong Cha last. Later additions HAB1, Elbon, and KyoboS are before Gong Cha; KyoboD and KyoboS remain separate.
+- This revision supersedes the high-resolution-only selection rule above. Current catalog remains `.data/current-photo-catalog.json`; private restoration evidence is `.data/restore-lowres-20261119/`.
+
 <!-- BEGIN:nextjs-agent-rules -->
 
 ## This is NOT the Next.js you know

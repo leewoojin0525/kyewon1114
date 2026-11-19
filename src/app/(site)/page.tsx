@@ -9,9 +9,9 @@ export default async function Home() {
     listPublic("journal"),
     publicSettings(),
   ]);
-  const selected = settings.selectedProjects
-    .map((id) => projects.find((p) => p.id === id))
-    .filter(Boolean) as typeof projects;
+  const selected = projects.filter((project) =>
+    settings.selectedProjects.includes(project.id),
+  );
   const hero =
     projects.find((p) => p.id === settings.featuredProject) ||
     selected[0] ||
