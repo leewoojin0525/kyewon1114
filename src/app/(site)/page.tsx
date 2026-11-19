@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { imagesIn } from "@/lib/model";
 import { listPublic, publicSettings } from "@/lib/content";
-import { PhotoImage } from "@/components/photos";
+import { HomeHero, type HomeSlide } from "@/components/home-hero";
+import { mediaInfo } from "@/lib/media";
 import { SectionTitle, ProjectCard, EmptyState } from "@/components/editorial";
 export const metadata = { alternates: { canonical: "/" } };
 export default async function Home() {
@@ -18,40 +19,56 @@ export default async function Home() {
     selected[0] ||
     projects[0];
   const picks = (selected.length ? selected : projects).slice(0, 6);
+  const heroProjects = [
+    "kyobo-hottracks-2015",
+    "samjeon-165-18",
+    "gwangjang-apartment",
+  ].flatMap(
+    (slug) => projects.find((project) => project.data.slug === slug) ?? [],
+  );
+  if (!heroProjects.length && hero) heroProjects.push(hero);
+  const heroMedia = await mediaInfo(
+    heroProjects.flatMap((project) => imagesIn(project.data)[0]?.id ?? []),
+  );
+  const slides: HomeSlide[] = heroProjects.flatMap((project) => {
+    const photo = imagesIn(project.data)[0];
+    const media = heroMedia.find((item) => item.id === photo?.id);
+    if (!photo || !media) return [];
+    const mobileCenters: Record<string, number> = {
+      "kyobo-hottracks-2015": 50,
+      "samjeon-165-18": 53,
+      "gwangjang-apartment": 62,
+    };
+    return [
+      {
+        id: photo.id,
+        title: project.data.title,
+        href: `/projects/${project.data.slug}`,
+        src: `/media/${media.derivatives.at(-1).key}`,
+        srcSet: media.derivatives
+          .map(
+            (item: { key: string; width: number }) =>
+              `/media/${item.key} ${item.width}w`,
+          )
+          .join(", "),
+        sizes: "100vw",
+        alt: photo.alt,
+        width: media.width,
+        height: media.height,
+        focal: `${photo.focalX}% ${photo.focalY}%`,
+        mobileFocal: `${photo.mobileFocalX === 50 ? (mobileCenters[project.data.slug] ?? 50) : photo.mobileFocalX}% ${photo.mobileFocalY}%`,
+      },
+    ];
+  });
   return (
     <>
-      <section className={`cover ${hero ? "magazine-cover" : "wrap"}`}>
-        {hero ? (
-          <>
-            <Link
-              href={`/projects/${hero.data.slug}`}
-              aria-label={`View ${hero.data.title}`}
-            >
-              <PhotoImage
-                photo={imagesIn(hero.data)[0]}
-                priority
-                className="cover-image"
-              />
-            </Link>
-            <div className="cover-caption">
-              <div>
-                <span className="eyebrow">FEATURED PROJECT</span>
-                <h1>
-                  <Link href={`/projects/${hero.data.slug}`}>
-                    {hero.data.title}
-                  </Link>
-                </h1>
-              </div>
-              <Link
-                href={`/projects/${hero.data.slug}`}
-                className="circle-link"
-                aria-label="View featured project"
-              >
-                ↗
-              </Link>
-            </div>
-          </>
-        ) : (
+      {slides.length ? (
+        <HomeHero
+          key={slides.map((slide) => slide.id).join(":")}
+          slides={slides}
+        />
+      ) : (
+        <section className="cover wrap">
           <>
             <div className="cover-placeholder">
               <div className="proof-top">
@@ -90,8 +107,8 @@ export default async function Home() {
               </Link>
             </div>
           </>
-        )}
-      </section>
+        </section>
+      )}
       <section className="section portfolio-selection">
         <SectionTitle number="01" title="SELECTED PROJECTS" href="/projects" />
         {picks.length ? (

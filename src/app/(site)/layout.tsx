@@ -3,6 +3,11 @@ import { Navigation } from "@/components/navigation";
 import { publicSettings, listPublic } from "@/lib/content";
 import { mediaInfo } from "@/lib/media";
 import { isLive } from "@/lib/env";
+import { SiteMotion } from "@/components/site-motion";
+import "@fontsource/jost/latin-400.css";
+import "@fontsource/jost/latin-500.css";
+import "@fontsource/cormorant-garamond/latin-400.css";
+import "./public-site.css";
 export const dynamic = "force-dynamic";
 export async function generateMetadata() {
   const [settings, projects] = await Promise.all([
@@ -30,7 +35,7 @@ export default async function SiteLayout({
 }) {
   const settings = await publicSettings();
   return (
-    <>
+    <div className="public-site">
       <a className="skip" href="#main">
         Skip to content
       </a>
@@ -43,6 +48,7 @@ export default async function SiteLayout({
         </div>
       )}
       <Navigation />
+      <SiteMotion />
       <main id="main">{children}</main>
       <footer className="site-footer">
         <div className="wrap">
@@ -90,6 +96,6 @@ export default async function SiteLayout({
           </div>
         </div>
       </footer>
-    </>
+    </div>
   );
 }

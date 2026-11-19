@@ -11,9 +11,15 @@ importers:
       '@aws-sdk/client-s3':
         specifier: 3.922.0
         version: 3.922.0
+      '@fontsource/cormorant-garamond':
+        specifier: ^5.3.0
+        version: 5.3.0
       '@fontsource/inter':
         specifier: 5.2.8
         version: 5.2.8
+      '@fontsource/jost':
+        specifier: ^5.3.0
+        version: 5.3.0
       '@fontsource/noto-sans-kr':
         specifier: 5.2.9
         version: 5.2.9
@@ -905,8 +911,14 @@ packages:
   '@floating-ui/utils@0.2.12':
     resolution: {integrity: sha512-HpCo8tmWzLVad5s2d19EhAz5zqrrQ6s69qd6moPMQvkOuSwDT1YgRfWSVuc4ennqrgv3OHppiOGMQ7oC13yIww==}
 
+  '@fontsource/cormorant-garamond@5.3.0':
+    resolution: {integrity: sha512-weuGsCirGVWBWqpt6YUp0yLThTe4G8YO45noq8wxeJCRvEpq5lFrxNMFSTxcyOyV5k5otzJ8guDzYegdYlcLMQ==}
+
   '@fontsource/inter@5.2.8':
     resolution: {integrity: sha512-P6r5WnJoKiNVV+zvW2xM13gNdFhAEpQ9dQJHt3naLvfg+LkF2ldgSLiF4T41lf1SQCM9QmkqPTn4TH568IRagg==}
+
+  '@fontsource/jost@5.3.0':
+    resolution: {integrity: sha512-lORv5y49hSoLVxjGb0qNuBzXvnaNYI3B94200uGPGJFei8fao6d6LLz2ziWbOZubGfZnibzuT6GVNX8fBw8WQQ==}
 
   '@fontsource/noto-sans-kr@5.2.9':
     resolution: {integrity: sha512-pbF8F0rUzKkDmnk/KYGAbxjgW4TrIHdFKnV6OQ+kUC9ELCn5utrAURcEgMqq3J9SRX+FvjOz+aBCmfcC8/r7cw==}
@@ -3583,7 +3595,11 @@ snapshots:
 
   '@floating-ui/utils@0.2.12': {}
 
+  '@fontsource/cormorant-garamond@5.3.0': {}
+
   '@fontsource/inter@5.2.8': {}
+
+  '@fontsource/jost@5.3.0': {}
 
   '@fontsource/noto-sans-kr@5.2.9': {}
 

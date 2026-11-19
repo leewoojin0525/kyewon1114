@@ -374,7 +374,10 @@ test("직원 초안 작성, 직접 발행·상태 주입 차단, 원본·초안 
     );
   assert.equal((await read("960.webp")).status, 404);
   assert.equal((await read("original", ownerCookie)).status, 404);
-  assert.equal((await read("960.webp", editorCookie)).status, 200);
+  const privateImage = await read("960.webp", editorCookie);
+  assert.equal(privateImage.status, 200);
+  assert.equal(privateImage.headers.get("cache-control"), "private, no-store");
+  assert.equal(privateImage.headers.get("etag"), null);
   assert.equal((await request(`content/${docId}`)).status, 401);
 });
 test("대표 발행 후 수정 초안·검토 요청·보완 요청은 기존 공개본 유지", async () => {
@@ -509,8 +512,43 @@ test("공개 사진 불변, 사용 중 사진 삭제 금지, 비공개 즉시 �
     { params: Promise.resolve({ id: asset.id, size: "960.webp" }) },
   );
   assert.equal(r.status, 200);
-  assert.match(r.headers.get("cache-control")!, /no-store/);
+  assert.equal(
+    r.headers.get("cache-control"),
+    "private, no-cache, max-age=0, must-revalidate",
+  );
+  const etag = r.headers.get("etag")!;
+  assert.ok(etag);
+  const conditionalRead = (validator: string, size = "960.webp", cookie = "") =>
+    mediaRoute.GET(
+      new Request(`${base}/media/${asset.id}/${size}`, {
+        headers: {
+          "If-None-Match": validator,
+          Cookie: cookie,
+          "Sec-Fetch-Site": "same-origin",
+        },
+      }),
+      { params: Promise.resolve({ id: asset.id, size }) },
+    );
+  for (const validator of [etag, `W/${etag}`, `"unrelated", ${etag}`, "*"]) {
+    const cached = await conditionalRead(validator);
+    assert.equal(cached.status, 304);
+    assert.equal(await cached.text(), "");
+    assert.equal(cached.headers.get("etag"), etag);
+    assert.equal(
+      cached.headers.get("cache-control"),
+      r.headers.get("cache-control"),
+    );
+  }
+  assert.equal((await conditionalRead('"unrelated"')).status, 200);
+  assert.equal((await conditionalRead(etag, "123.webp")).status, 404);
   await content.workflow(owner, docId, "unpublish", 5);
+  // A formerly public browser copy must not bypass publication withdrawal.
+  assert.equal((await conditionalRead(etag)).status, 404);
+  assert.equal((await conditionalRead("*")).status, 404);
+  const privateAgain = await conditionalRead(etag, "960.webp", editorCookie);
+  assert.equal(privateAgain.status, 200);
+  assert.equal(privateAgain.headers.get("cache-control"), "private, no-store");
+  assert.equal(privateAgain.headers.get("etag"), null);
   assert.equal((await content.listPublic("projects")).length, 0);
   assert.equal(
     (
