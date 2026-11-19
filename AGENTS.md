@@ -80,6 +80,8 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 ## Cover follows photograph one — latest user rule
 
+- Request (6), final user clarification: retain through filename Tied-033 inclusive in the requested sequence (34 photographs) in Tied; convert Tied-033 to grayscale from its preserved original. Move the remaining 108 photographs to `Tied — Part 2` (`tied-part-2`), immediately after Tied. Covers follow first photographs: Tied-009 and Tied-034 respectively. Preserve stable photo references, existing deletions and low-resolution provenance. New total is 27 projects / 787 published photographs; 19 deleted review cards remain, for 806 review cards. Earlier Kyobo/Samjeon instructions repeated in request (6) are already applied and must not undo later edits.
+
 - Samjeon-018 latest user-authorized retouch supersedes the crop-only derivative: darkened right-neighbor window interiors, removed the two left-background crosses and their entire steel towers, and dimmed distracting left storefront sign lights. Store AI-retouch provenance privately and preserve the original/crop versions. Keep the reference number, first position, and total photo count unchanged; website and review catalogs use the retouched web derivative.
 
 - Samjeon-018 uses the user's requested tighter crop from the preserved 8256×5498 original: left 650, top 350, width 7050, height 4700; web derivative 2400×1600 WebP. Keep the entire building visible and retain the stable reference number. The earlier uncropped derivative remains private history, not an extra gallery photo.
