@@ -28,6 +28,12 @@
 - The user requested GitHub and Vercel deployment and explicitly selected the free configuration. Do not upgrade to paid plans. Preserve full local originals; prepare smaller deployment files without removing public photographs.
 - Remove the public Profile archive link. Preserve biography source evidence privately.
 
+## User revisions, 2026-11-19
+
+- KyoboD and KyoboS are separate projects. Do not merge their photographs. The existing `kyobo-hottracks-2015` page is KyoboD; `kyobo-hottracks-s` is KyoboS. Keep the existing KyoboD cover (KyoboD-031).
+- Exclude fixed file references KyoboD-007, KyoboD-039, KyoboD-046 and KyoboD-027 from the public website only. Preserve the Google Drive originals and immutable media/history. After these exclusions, KyoboD has 43 photographs and KyoboS has 34.
+- Photo review requests use the fixed file reference (for example, KyoboD-039), not the displayed sequence number. Preserve these references across exclusions, reordering and project splits. Keep the original 908-photo catalog baseline; apply later publication state separately so excluded photographs are not accidentally restored.
+
 <!-- BEGIN:nextjs-agent-rules -->
 
 ## This is NOT the Next.js you know
