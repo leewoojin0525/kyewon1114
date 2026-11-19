@@ -45,6 +45,11 @@
 - Restore the established project ordering from the pre-full-library project order: KyoboD first, Samjeon second, Tied third, Marina in its original position, Gong Cha last. Later additions HAB1, Elbon, and KyoboS are before Gong Cha; KyoboD and KyoboS remain separate.
 - This revision supersedes the high-resolution-only selection rule above. Current catalog remains `.data/current-photo-catalog.json`; private restoration evidence is `.data/restore-lowres-20261119/`.
 
+## Latest photo request, 2026-11-19: KyoboD
+
+- Apply the user's 806-photo request file by removing KyoboD-002, 004, 006, 007, 011, 012, 015, 016, 021, 025, 027, 028, 029, 033, 034, 035, 038, 040, 041, 043, 045, and 046 from the public project and current catalogs. Keep private originals and immutable history.
+- Current KyoboD has 25 photographs, with KyoboD-031 still the cover. Current total is 26 projects / 784 photographs. Other project photographs and all project ordering remain unchanged. This supersedes the restored 806-photo count above.
+
 <!-- BEGIN:nextjs-agent-rules -->
 
 ## This is NOT the Next.js you know
