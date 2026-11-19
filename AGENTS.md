@@ -52,6 +52,12 @@
 
 - KyoboD-only viewing trial: show one uncropped photograph with previous/next arrows, a current/total counter, and clickable thumbnails below. This user-requested exception supersedes the no-thumbnail rule only for `kyobo-hottracks-2015`; other projects retain their existing layout.
 
+## Photo review retention rule — 2026-11-19
+
+- Removing a photograph from the website must NOT remove its card from the private review list. Keep its thumbnail and stable filename/reference, visibly mark it `삭제됨`, distinguish its former order from current public order, and offer `복원 요청` in the review request export.
+- Preserve private source files and review history. Restore to the website only on an explicit user restoration request through the normal reviewed publication workflow. Never merge review-only history into public catalogs or public media permissions.
+- Maintain `.data/photo-review-history.json` when rebuilding the interactive review list. Counts must separately identify currently published and deleted photographs. This supersedes earlier instructions to remove deleted cards from the review list; unrelated legacy sets must not be reintroduced.
+
 <!-- BEGIN:nextjs-agent-rules -->
 
 ## This is NOT the Next.js you know
