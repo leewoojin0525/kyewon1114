@@ -11,7 +11,7 @@ export function ProjectSlideshow({ items }: { items: GalleryItem[] }) {
     const selected = strip?.children[current] as HTMLElement | undefined;
     if (strip && selected) {
       strip.scrollTo({
-        left: selected.offsetLeft - strip.offsetLeft - (strip.clientWidth - selected.clientWidth) / 2,
+        left: selected.offsetLeft - (strip.clientWidth - selected.clientWidth) / 2,
         behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth",
       });
     }
