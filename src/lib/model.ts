@@ -73,6 +73,7 @@ export const documentSchema = z.object({
   creditConfirmed: z.boolean().default(false),
   publishReviewed: z.boolean().default(false),
   hero: photoSchema.optional(),
+  galleryOrder: z.array(z.string().uuid()).max(601).optional(),
   blocks: z.array(blockSchema).max(300).default([]),
   order: z.number().int().min(0).max(9999).default(9999),
   pinned: z.boolean().default(false),
@@ -141,7 +142,7 @@ export type Publication = {
 };
 export function imagesIn(data: Record<string, unknown>): Photo[] {
   const d = data as unknown as Content;
-  return [
+  const photos = [
     d.hero,
     ...(d.blocks || []).flatMap((b) =>
       b.type === "image"
@@ -151,6 +152,9 @@ export function imagesIn(data: Record<string, unknown>): Photo[] {
           : [],
     ),
   ].filter(Boolean) as Photo[];
+  if (!d.galleryOrder?.length) return photos;
+  const rank = new Map(d.galleryOrder.map((id, index) => [id, index]));
+  return photos.sort((a, b) => (rank.get(a.id) ?? Infinity) - (rank.get(b.id) ?? Infinity));
 }
 export function mediaIds(data: Record<string, unknown>) {
   return [
