@@ -30,6 +30,8 @@
 
 ## User revisions, 2026-11-19
 
+- The user subsequently requested all Samjeon 165-18 photographs removed, including both previously registered and newly supplied photographs. Keep the project unpublished and absent from the home selection; preserve all 54 photographs privately and retain history. This supersedes the earlier instruction to display Samjeon second.
+
 - KyoboD and KyoboS are separate projects. Do not merge their photographs. The existing `kyobo-hottracks-2015` page is KyoboD; `kyobo-hottracks-s` is KyoboS. Keep the existing KyoboD cover (KyoboD-031).
 - Exclude fixed file references KyoboD-007, KyoboD-039, KyoboD-046 and KyoboD-027 from the public website only. Preserve the Google Drive originals and immutable media/history. The subsequent request file also excludes KyoboD-002, 006, 008, 009, 019, 023, 024, 025, 028, 029, 030, 032, 035, 038, 040, 041, 043, 045 and KyoboS-002, 004, 005, 008, 010, 011, 012, 016, 018, 020, 022, 023, 025, 030, 031, 032, 034. After both requests, KyoboD has 25 photographs and KyoboS has 17.
 - Photo review requests use the fixed file reference (for example, KyoboD-039), not the displayed sequence number. Preserve these references across exclusions, reordering and project splits. Keep the original 908-photo catalog baseline; apply later publication state separately so excluded photographs are not accidentally restored.
