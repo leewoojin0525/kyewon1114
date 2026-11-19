@@ -20,3 +20,6 @@ docs/*
 !docs/acceptance.md
 .env*
 !.env.example
+
+# Private deployment derivatives are shipped via the authenticated CLI only.
+.site-media/

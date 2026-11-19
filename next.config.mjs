@@ -1,6 +1,11 @@
+import { existsSync } from "node:fs";
 import { withPayload } from "@payloadcms/next/withPayload";
+if (process.env.VERCEL_ENV === "production" && !existsSync(".site-media/manifest.json")) {
+  throw new Error("Private deployment photo bundle is missing. Run the verified media preparation before deploying.");
+}
 export default withPayload({
   output: "standalone",
+  outputFileTracingIncludes: { "/media/**": ["./.site-media/**/*"] },
   poweredByHeader: false,
   devIndicators: false,
   serverExternalPackages: ["pg", "sharp", "@aws-sdk/client-s3"],

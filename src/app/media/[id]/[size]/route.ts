@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { authenticate } from "@/lib/auth";
 import { pool } from "@/lib/db";
-import { getBlob } from "@/lib/media";
+import { getBlob } from "@/lib/storage-read";
 import type { PackedMedia } from "@/lib/packed-media";
 export const dynamic = "force-dynamic";
 export async function GET(
@@ -29,14 +29,17 @@ export async function GET(
   );
   if (!derivative) return new Response("Not found", { status: 404 });
   try {
-    return new Response(new Uint8Array(await getBlob(derivative.key, derivative.packed)), {
-      headers: {
-        "Content-Type": "image/webp",
-        "Cache-Control": "private, no-store",
-        "X-Content-Type-Options": "nosniff",
-        "X-Robots-Tag": media.public ? "all" : "noindex",
+    return new Response(
+      new Uint8Array(await getBlob(derivative.key, derivative.packed)),
+      {
+        headers: {
+          "Content-Type": "image/webp",
+          "Cache-Control": "private, no-store",
+          "X-Content-Type-Options": "nosniff",
+          "X-Robots-Tag": media.public ? "all" : "noindex",
+        },
       },
-    });
+    );
   } catch {
     return new Response("Unavailable", { status: 503 });
   }

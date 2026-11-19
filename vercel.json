@@ -2,6 +2,16 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
   "buildCommand": "pnpm build",
-  "regions": ["icn1"],
-  "crons": [{ "path": "/api/maintenance", "schedule": "0 0 * * *" }]
+  "regions": [
+    "icn1"
+  ],
+  "crons": [
+    {
+      "path": "/api/maintenance",
+      "schedule": "0 0 * * *"
+    }
+  ],
+  "git": {
+    "deploymentEnabled": false
+  }
 }

@@ -1,26 +1,15 @@
 import sharp from "sharp";
 import { randomUUID } from "node:crypto";
-import { mkdir, readFile, writeFile, unlink } from "node:fs/promises";
+import { mkdir, writeFile, unlink } from "node:fs/promises";
 import { resolve, dirname } from "node:path";
 import {
   S3Client,
   PutObjectCommand,
-  GetObjectCommand,
   DeleteObjectCommand,
 } from "@aws-sdk/client-s3";
 import { AppError, pool, transaction, audit, type Actor } from "./db";
 import { isLive, required } from "./env";
-import {
-  readLocalPackedMedia,
-  validatePackedMedia,
-  verifyPackedBytes,
-  type PackedMedia,
-} from "./packed-media";
-import {
-  put as vercelPut,
-  get as vercelGet,
-  del as vercelDelete,
-} from "@vercel/blob";
+import { put as vercelPut, del as vercelDelete } from "@vercel/blob";
 const sizes = [640, 960, 1440, 1920];
 function s3() {
   return new S3Client({
@@ -65,54 +54,7 @@ export async function putBlob(key: string, data: Buffer, type: string) {
     await writeFile(p, data, { flag: "wx" });
   }
 }
-export async function getBlob(key: string, packed?: PackedMedia) {
-  if (packed) validatePackedMedia(packed);
-  if (process.env.STORAGE_DRIVER === "vercel-blob") {
-    const result = await vercelGet(packed?.key || key, {
-      access: "private",
-      ...(packed
-        ? {
-            headers: {
-              Range: `bytes=${packed.offset}-${packed.offset + packed.bytes - 1}`,
-            },
-            abortSignal: AbortSignal.timeout(30000),
-          }
-        : {}),
-    });
-    if (!result || result.statusCode !== 200)
-      throw new AppError(404, "사진이 없습니다.");
-    if (packed) {
-      const expected = `bytes ${packed.offset}-${packed.offset + packed.bytes - 1}/`;
-      // Fail closed if storage ignores Range: never expose adjacent private images.
-      if (
-        !result.headers.get("content-range")?.startsWith(expected) ||
-        result.blob.size !== packed.bytes
-      ) {
-        await result.stream.cancel();
-        throw new Error("Storage did not honor the photo byte range");
-      }
-    }
-    const data = Buffer.from(await new Response(result.stream).arrayBuffer());
-    return packed ? verifyPackedBytes(data, packed) : data;
-  }
-  if (process.env.STORAGE_DRIVER === "s3") {
-    const r = await s3().send(
-      new GetObjectCommand({
-        Bucket: required("S3_BUCKET"),
-        Key: packed?.key || key,
-        ...(packed
-          ? {
-              Range: `bytes=${packed.offset}-${packed.offset + packed.bytes - 1}`,
-            }
-          : {}),
-      }),
-    );
-    const data = Buffer.from(await r.Body!.transformToByteArray());
-    return packed ? verifyPackedBytes(data, packed) : data;
-  }
-  if (packed) return readLocalPackedMedia(localPath(packed.key), packed);
-  return readFile(localPath(key));
-}
+export { getBlob } from "./storage-read";
 async function deleteBlob(key: string) {
   if (process.env.STORAGE_DRIVER === "vercel-blob") await vercelDelete(key);
   else if (process.env.STORAGE_DRIVER === "s3")

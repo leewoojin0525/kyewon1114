@@ -96,3 +96,14 @@ route checks current publication access before reading the exact range, and
 checks its SHA-256 digest before serving it. Bundle keys are never public routes.
 Backups copy each physical bundle once; restores preserve the same layout.
 Cloud upload skips originals already held in the verified offline archive.
+
+
+### Bundled display media during the Blob free-tier suspension
+
+On 2026-11-18 Vercel suspended Blob after the 2,000 monthly Advanced Operations allowance was used. This is separate from storage capacity. The account remains Hobby; no paid upgrade was made. The provider reports automatic recovery on 2026-12-18 at14:04KST.
+
+The media GET route first reads verified immutable derivatives from `.site-media/`. These files are included only in the server function trace and are never in `public/` or the public Git repository. The normal database publication/authentication check runs before every image read. An unpublish immediately blocks anonymous access even when the file remains in the deployment. Originals are excluded. SHA-256 validates each returned photo/range. Uploads still use Blob and are unavailable while the provider has suspended it.
+
+Prepare the reviewed full-photo library with `node scripts/prepare-bundled-media.mjs` on the archive host, then run typecheck, tests and build. Deploy from that host using the authenticated Vercel CLI, verify the staged production build, then promote it. The production build fails if the private manifest is missing. Git auto-deploy is disabled because the public repository deliberately excludes these private display files; pushing source alone must not replace a working media deployment. Source commits remain on GitHub.
+
+The preparation requires the private plan in `.data/full-library-20261118/plan.json`, verified source files, and current Press media mirrored under `.data/verified-backup-media-20261118`. Refresh the plan and verified mirror for future photo changes. Keep the separate full database/media backups; the display bundle is not a backup of originals. Existing Blob reads remain available as a fallback for media added after suspension ends.

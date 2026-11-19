@@ -121,24 +121,91 @@ function validData(title = "DEMO — 권한 시험") {
   };
 }
 test("large project galleries serve only the published photo inside a private bundle", async () => {
-  const photo=await media.getBlob(asset.derivatives[0].key);
-  const prefix=Buffer.from("PRIVATE-BEFORE"),suffix=Buffer.from("PRIVATE-AFTER");
-  const pack=Buffer.concat([prefix,photo,suffix]);
-  const packKey=`packs/${createHash("sha256").update(pack).digest("hex")}.bin`;
-  await media.putBlob(packKey,pack,"application/octet-stream");
-  const id=randomUUID(),width=asset.derivatives[0].width,height=asset.derivatives[0].height,key=`${id}/${width}.webp`;
-  const packed={key:packKey,offset:prefix.length,bytes:photo.length,sha256:createHash("sha256").update(photo).digest("hex")};
-  await db.pool.query("INSERT INTO w_media(id,original_key,mime,bytes,width,height,derivatives,uploaded_by) VALUES($1,$2,'image/webp',$3,$4,$5,$6,$7)",[id,key,photo.length,width,height,JSON.stringify([{width,height,key,bytes:photo.length,packed}]),owner.id]);
-  const data={...validData(),slug:"packed-gallery-test",hero:{id,alt:"Verified photograph"},blocks:Array.from({length:141},()=>({type:"image",image:{id,alt:"Gallery photograph"},width:"wide"}))};
-  const created=await content.createContent(owner,"projects",data);
-  const read=()=>mediaRoute.GET(new Request(`${base}/media/${key}`),{params:Promise.resolve({id,size:`${width}.webp`})});
-  assert.equal((await read()).status,404);
-  await content.workflow(owner,created.id,"publish",created.version);
-  const response=await read();assert.equal(response.status,200);
-  assert.deepEqual(Buffer.from(await response.arrayBuffer()),photo);
-  assert.equal((await mediaRoute.GET(new Request(`${base}/media/${packKey}`),{params:Promise.resolve({id:"packs",size:packKey.split("/")[1]})})).status,404);
-  await content.workflow(owner,created.id,"unpublish",created.version);
-  assert.equal((await read()).status,404);
+  const photo = await media.getBlob(asset.derivatives[0].key);
+  const prefix = Buffer.from("PRIVATE-BEFORE"),
+    suffix = Buffer.from("PRIVATE-AFTER");
+  const pack = Buffer.concat([prefix, photo, suffix]);
+  const packKey = `packs/${createHash("sha256").update(pack).digest("hex")}.bin`;
+  const { mkdtemp, mkdir, writeFile, rm } = await import("node:fs/promises");
+  const { tmpdir } = await import("node:os");
+  const { join } = await import("node:path");
+  const bundleDir = await mkdtemp(join(tmpdir(), "wovn-route-bundle-"));
+  await mkdir(join(bundleDir, "packs"));
+  await writeFile(join(bundleDir, packKey), pack);
+  const id = randomUUID(),
+    width = asset.derivatives[0].width,
+    height = asset.derivatives[0].height,
+    key = `${id}/${width}.webp`;
+  const packed = {
+    key: packKey,
+    offset: prefix.length,
+    bytes: photo.length,
+    sha256: createHash("sha256").update(photo).digest("hex"),
+  };
+  await db.pool.query(
+    "INSERT INTO w_media(id,original_key,mime,bytes,width,height,derivatives,uploaded_by) VALUES($1,$2,'image/webp',$3,$4,$5,$6,$7)",
+    [
+      id,
+      key,
+      photo.length,
+      width,
+      height,
+      JSON.stringify([{ width, height, key, bytes: photo.length, packed }]),
+      owner.id,
+    ],
+  );
+  const data = {
+    ...validData(),
+    slug: "packed-gallery-test",
+    hero: { id, alt: "Verified photograph" },
+    blocks: Array.from({ length: 141 }, () => ({
+      type: "image",
+      image: { id, alt: "Gallery photograph" },
+      width: "wide",
+    })),
+  };
+  await writeFile(
+    join(bundleDir, "manifest.json"),
+    JSON.stringify({
+      format: 1,
+      entries: {
+        [key]: {
+          key: packKey,
+          offset: prefix.length,
+          bytes: photo.length,
+          sha256: packed.sha256,
+        },
+      },
+    }),
+  );
+  const previousBundle = process.env.MEDIA_BUNDLE_DIRECTORY;
+  process.env.MEDIA_BUNDLE_DIRECTORY = bundleDir;
+  try {
+    const created = await content.createContent(owner, "projects", data);
+    const read = () =>
+      mediaRoute.GET(new Request(`${base}/media/${key}`), {
+        params: Promise.resolve({ id, size: `${width}.webp` }),
+      });
+    assert.equal((await read()).status, 404);
+    await content.workflow(owner, created.id, "publish", created.version);
+    const response = await read();
+    assert.equal(response.status, 200);
+    assert.deepEqual(Buffer.from(await response.arrayBuffer()), photo);
+    assert.equal(
+      (
+        await mediaRoute.GET(new Request(`${base}/media/${packKey}`), {
+          params: Promise.resolve({ id: "packs", size: packKey.split("/")[1] }),
+        })
+      ).status,
+      404,
+    );
+    await content.workflow(owner, created.id, "unpublish", created.version);
+    assert.equal((await read()).status, 404);
+  } finally {
+    if (previousBundle === undefined) delete process.env.MEDIA_BUNDLE_DIRECTORY;
+    else process.env.MEDIA_BUNDLE_DIRECTORY = previousBundle;
+    await rm(bundleDir, { recursive: true, force: true });
+  }
 });
 before(
   async () => {
