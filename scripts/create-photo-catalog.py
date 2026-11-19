@@ -13,10 +13,10 @@ scope = {'__file__': str(root/'scripts/create-photo-review.py')}
 exec((root/'scripts/create-photo-review.py').read_text().split('cards = []')[0], scope)
 plan = {'projects': [], 'photos': []}
 for i,g in enumerate(scope['groups']):
- photos = [x for x in g['photos'] if x['reference'] not in scope['excluded']]
+ photos = g['photos']
  plan['projects'].append({'id':str(i),'title':g['title']})
  for n,x in enumerate(photos,1):
-  plan['photos'].append({**x,'projectId':str(i),'order':n,'placement':'cover' if x['reference']==g['heroReference'] else 'gallery'})
+  plan['photos'].append({**x,'projectId':str(i),'order':x['order'],'placement':'cover' if x['reference']==g['heroReference'] else 'gallery'})
 out=root/'output/pdf';out.mkdir(parents=True,exist_ok=True)
 pdf=out/'WOVN-Website-Photo-Catalog-20261118.pdf'
 pdfmetrics.registerFont(TTFont('Korean','/System/Library/Fonts/Supplemental/AppleGothic.ttf'))
@@ -37,10 +37,10 @@ def start(title,sub):
  text(34,23,'2026.11.19  |  kyewon1114.vercel.app  |  PHOTO REFERENCE',7,'Arial', '#777777')
  text(W-52,23,str(page),8,'Arial')
 start('홈페이지 사진 목록표',f'{len(plan["projects"])} projects / {len(plan["photos"])} images / WebP / 원본 비율 유지')
-text(34,H-125,'사진 고정 번호로 순서 변경과 삭제를 요청해 주세요.',11)
+text(34,H-125,f'게시 {scope["active_count"]}장 / 삭제됨 {scope["deleted_count"]}장 · 고정 번호로 변경 요청',11)
 text(34,H-145,'예: Samjeon-014를 대표사진으로 / Tied-008 삭제 / S-house-009를 두 번째로',9)
 text(34,H-164,'작품명-번호는 고정 파일 번호입니다. 현재 순서와 대표사진 여부는 별도로 표시합니다.',8)
-text(34,H-181,'현재 홈페이지에 등록된 사진만 수록한 새 목록입니다.',8)
+text(34,H-181,'삭제됨 사진도 검토용으로 보관합니다. 홈페이지에는 표시되지 않습니다.',8)
 text(34,H-198,'저용량 사진도 포함합니다. 다음 페이지와 각 사진에 해상도 구분을 표시했습니다.',8)
 text(34,H-220,'작품 번호',8);text(102,H-220,'프로젝트',8);text(W-87,H-220,'사진 수',8)
 y=H-241
@@ -58,7 +58,7 @@ for g in scope['groups']:
 text(34,90,'저용량 표시는 보관 원본의 해상도 기준이며, 원본을 억지로 확대하지 않습니다.',8)
 c.showPage()
 for idx,p in enumerate(plan['projects'],1):
- photos=sorted([x for x in plan['photos'] if x['projectId']==p['id']],key=lambda x:x['order'])
+ photos=sorted([x for x in plan['photos'] if x['projectId']==p['id']],key=lambda x:(bool(x.get('deleted')),x['order']))
  for offset in range(0,len(photos),9):
   chunk=photos[offset:offset+9]
   start(f'P{idx:02d}  {p["title"]}',f'{len(photos)} photographs  |  {offset+1}-{offset+len(chunk)}  |  COVER = Current cover')
@@ -70,7 +70,7 @@ for idx,p in enumerate(plan['projects'],1):
    imageBytes=io.BytesIO();im.save(imageBytes,format='JPEG',quality=75)
    c.drawImage(ImageReader(imageBytes),left+(cw-iw*scale)/2,top-143+(143-ih*scale)/2,width=iw*scale,height=ih*scale)
    text(left,top-159,x['reference'],10,'Arial')
-   text(left,top-173,f'Order {x["order"]:03d}'+('  COVER' if x['placement']=='cover' else '')+('  [existing]' if x.get('retainedExisting') else ''),7.8,'Arial')
+   text(left,top-173,'삭제됨 · 홈페이지 미게시' if x.get('deleted') else f'Order {x["order"]:03d}'+('  COVER' if x['placement']=='cover' else ''),7.8,'Korean' if x.get('deleted') else 'Arial','#b13f2c' if x.get('deleted') else '#282828')
    text(left,top-186,f'{x["width"]} x {x["height"]}  /  {x["bytes"]/1000:.0f} KB',7,'Arial','#777777')
    text(left,top-198,x.get('sourceStatus',''),6.5,color='#a95512' if x.get('lowResolution') else '#7751a8' if '재확인' in x.get('sourceStatus','') else '#237248')
    c.setStrokeColorRGB(.82,.82,.82);c.line(left,top-204,left+cw,top-204)

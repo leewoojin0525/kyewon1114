@@ -54,6 +54,8 @@
 
 ## Photo review retention rule — 2026-11-19
 
+- Latest applied request: KyoboD has 28 published photos in the user's submitted order, with KyoboD-003 removed and KyoboD-006/016/043/046 restored at the end (no restoration position was specified). KyoboD-031 remains the cover. Samjeon-012 is now the Samjeon cover. Current totals: 787 published photographs, 19 deleted review-only photographs, 806 review cards across 26 projects. This supersedes earlier photo counts and cover selections.
+
 - The private interactive review list supports visual ordering with first/previous/next buttons and desktop image drag-and-drop. Automatically number and persist the edited project order, and export requests in that order. These controls never directly modify website publications.
 
 - Removing a photograph from the website must NOT remove its card from the private review list. Keep its thumbnail and stable filename/reference, visibly mark it `삭제됨`, distinguish its former order from current public order, and offer `복원 요청` in the review request export.

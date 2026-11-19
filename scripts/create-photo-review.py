@@ -43,11 +43,20 @@ document = '''<!doctype html><html lang="ko"><meta charset="utf-8"><meta name="v
 <nav><select id="project">OPTIONS</select><select id="resolution"><option value="">모든 해상도</option><option value="low">저용량 사진만</option></select><input id="search" type="search" placeholder="사진 번호 또는 작품 검색"><button id="download">요청서 다운로드</button><span id="count"></span></nav><p id="order-message" role="status" aria-live="polite">사진의 ‘앞으로 / 뒤로 / 맨 앞으로’ 버튼으로 순서를 바꾸세요. 컴퓨터에서는 사진을 끌어 이동할 수도 있습니다.</p><main id="grid">CARDS</main>
 <script>
 const cards=[...document.querySelectorAll('article')],key='wovn-photo-review-rebuilt-20261119';let state={};try{const saved=JSON.parse(localStorage.getItem(key)||'{}');if(saved&&typeof saved==='object'&&!Array.isArray(saved))state=saved}catch{}
+const appliedReview=APPLIED_REVIEW;
+if(appliedReview){try{if(localStorage.getItem(key+'-applied')!==appliedReview.id){
+for(const c of cards)if(appliedReview.projects.includes(c.dataset.project))delete state[c.dataset.ref];
+const previousOrder=JSON.parse(localStorage.getItem(key+'-visual-order')||'{}');
+for(const slug of appliedReview.projects)delete previousOrder[slug];
+localStorage.setItem(key+'-visual-order',JSON.stringify(previousOrder));
+localStorage.setItem(key,JSON.stringify(state));localStorage.setItem(key+'-applied',appliedReview.id);
+}}catch{}}
 function snapshot(){const s={};for(const c of cards){const[o,d]=c.querySelectorAll('input'),n=c.querySelector('textarea');if(o.value||d.checked||n.value)s[c.dataset.ref]={order:o.value,delete:c.dataset.deleted!=='true'&&d.checked,restore:c.dataset.deleted==='true'&&d.checked,note:n.value};c.classList.toggle('deleted',d.checked)}state=s;try{localStorage.setItem(key,JSON.stringify(s))}catch{}}
 for(const c of cards){const v=state[c.dataset.ref];if(v){const[o,d]=c.querySelectorAll('input');o.value=v.order||'';d.checked=c.dataset.deleted==='true'?!!v.restore:!!v.delete;c.querySelector('textarea').value=v.note||''}c.addEventListener('input',snapshot)}snapshot();
 function filter(){const p=document.querySelector('#project').value,q=document.querySelector('#search').value.trim().toLowerCase(),r=document.querySelector('#resolution').value;let n=0;for(const c of cards){const show=(!r||r===c.dataset.resolution)&&(!p||p===c.dataset.project)&&(!q||(c.dataset.ref+' '+c.dataset.title).toLowerCase().includes(q));c.classList.toggle('hidden',!show);if(show)n++}document.querySelector('#count').textContent=n+' / '+cards.length+'장'}document.querySelector('#project').addEventListener('change',filter);document.querySelector('#search').addEventListener('input',filter);document.querySelector('#resolution').addEventListener('change',filter);filter();
 document.querySelector('#download').addEventListener('click',()=>{snapshot();const lines=['WOVN · 계원1114 사진 변경 요청','사진 목록: 2026.11.19 저용량 복원본 / '+cards.length+'장',''];for(const c of document.querySelectorAll('#grid article')){const s=state[c.dataset.ref];if(!s)continue;lines.push(c.dataset.title+' / '+c.dataset.ref+' ('+(c.dataset.deleted==='true'?'삭제됨 · 삭제 전 순서 ':'현재 순서 ')+c.dataset.order+')');if(s.delete||s.restore)lines.push(c.dataset.deleted==='true'?'복원 요청':'삭제 요청');if(s.order)lines.push('변경 순서: '+s.order);if(s.note)lines.push(s.note);lines.push('')}if(lines.length===3)lines.push('새 요청 표시가 없습니다.');const u=URL.createObjectURL(new Blob(['\\uFEFF'+lines.join('\\n')],{type:'text/plain;charset=utf-8'})),a=document.createElement('a');a.href=u;a.download='WOVN-사진변경요청.txt';a.click();setTimeout(()=>URL.revokeObjectURL(u),1000)});
 </script></html>'''
+document=document.replace('APPLIED_REVIEW', json.dumps(plan.get('appliedReview'), ensure_ascii=False))
 document=document.replace('</script>', (root/'scripts/photo-review-order.js').read_text() + '\n</script>')
 document=document.replace('SUMMARY',f'{len(groups)}개 작품 · 게시 {active_count}장 / 삭제됨 {deleted_count}장 · 검토 총 {len(cards)}장').replace('EXCEPTIONS',exceptions).replace('OPTIONS',''.join(options)).replace('CARDS',''.join(cards))
 output=root/'output/review/WOVN-Photo-Review-20261118.html';output.parent.mkdir(parents=True,exist_ok=True);output.write_text(document)
