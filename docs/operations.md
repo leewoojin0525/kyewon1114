@@ -1,6 +1,16 @@
 # 운영과 인계
 
-## Vercel 구성 (2026-11-14)
+## 현재 사진 운영 기준 (2026-11-19)
+
+- 현재 사진 구성은 26개 작품 / 691장입니다. 검증된 고용량 원본에서 재변환한 17개 작품 531장과 기존 사진을 보존한 9개 작품 160장으로 구성합니다. KyoboD와 KyoboS는 별도 작품입니다.
+- 현재 목록의 단일 기준 파일은 비공개 `.data/current-photo-catalog.json`입니다. `scripts/create-photo-review.py`와 `scripts/create-photo-catalog.py`는 이 파일로 현재 사진만 출력합니다. 과거 제외 목록이나 908장 초기 목록을 합치지 않습니다.
+- 현재 표시용 파일은 Git에서 제외된 `.site-media/manifest.json`과 비공개 배포 번들로 제공합니다. 공개 여부는 여전히 DB의 현재 발행 참조로 검사합니다. 원본과 묶음 파일 자체는 공개하지 않습니다.
+- Git 자동 배포는 비활성화돼 있습니다. 배포할 때 현재 `.site-media`를 반드시 포함합니다. 초기 `prepare-bundled-media.mjs`는 과거 목록 기준이므로 그대로 재실행하면 새 사진 6장이 누락됩니다. 새 파일은 현재 매니페스트에 검증하여 추가해야 합니다.
+- 원본 확인과 변환·게시 기록은 비공개 `.data/rebuild-all-20261119/`에 있습니다. 웹용 파일은 `assets/website-rebuild-20261119/`, 현재 목록 PDF·HTML·CSV는 `output/`에 보관합니다. 원본은 삭제하지 않습니다.
+- 사진 한 장만 있는 작품도 대표사진만으로 발행할 수 있습니다. Owner 권한, 예상 버전, 권리 확인, 대체 텍스트, 실제 미디어 존재 검증은 동일하게 적용됩니다.
+- 무료 구성을 유지합니다. Blob 요청 한도 문제로 사진 제공 경로를 배포 번들로 옮긴 상태이므로, 확인 없이 초기 Blob 업로드·이관 스크립트를 반복 실행하지 않습니다.
+
+## 최초 Vercel 구성 기록 (2026-11-14)
 
 - GitHub: `leewoojin0525/kyewon1114`, Vercel 팀/프로젝트: `lwja/kyewon1114`.
 - 운영 주소: `https://kyewon1114.vercel.app`, 관리자: `/admin`. Node 24와 `ENABLE_EXPERIMENTAL_COREPACK=1`로 저장소의 pnpm 버전을 사용합니다.
