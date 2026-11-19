@@ -92,7 +92,10 @@ export function HomeHero({ slides }: { slides: HomeSlide[] }) {
       className="home-hero"
       aria-label="Selected projects"
       aria-roledescription="carousel"
-      onFocusCapture={() => setPaused(true)}
+      onFocusCapture={(event) => {
+        // The play control owns its toggle; focus must not toggle it twice.
+        if (!(event.target as HTMLElement).closest(".hero-play")) setPaused(true);
+      }}
       onKeyDown={(event) => {
         if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
           event.preventDefault();
