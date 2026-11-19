@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { PhotoImage } from "./photos";
 import { GallerySurface } from "./gallery";
+import { ProjectSlideshow } from "./project-slideshow";
 import { Prose } from "./prose";
 import { mediaInfo } from "@/lib/media";
 import { imagesIn, type Content, type Publication } from "@/lib/model";
@@ -169,6 +170,7 @@ export async function Detail({
 }) {
   const d = doc.data;
   const photos = imagesIn(d);
+  const slideshow = doc.kind === "projects" && d.slug === "kyobo-hottracks-2015";
   const media = await mediaInfo(photos.map((p) => p.id));
   const items = photos.flatMap((p) => {
     const m = media.find((m) => m.id === p.id);
@@ -209,7 +211,7 @@ export async function Detail({
           )}
         </div>
         <h1>{d.title}</h1>
-        {d.hero && (
+        {slideshow ? <ProjectSlideshow key={doc.version} items={items} /> : d.hero && (
           <PhotoImage photo={d.hero} priority className="detail-hero" />
         )}
         {doc.kind === "journal" && (
@@ -227,7 +229,7 @@ export async function Detail({
             )}
           </div>
         )}
-        <BodyBlocks data={d} photosOnly={doc.kind === "projects"} />
+        {!slideshow && <BodyBlocks data={d} photosOnly={doc.kind === "projects"} />}
         <div className="detail-cta">
           <h2>
             Your next space

@@ -50,6 +50,8 @@
 - Apply the user's 806-photo request file by removing KyoboD-002, 004, 006, 007, 011, 012, 015, 016, 021, 025, 027, 028, 029, 033, 034, 035, 038, 040, 041, 043, 045, and 046 from the public project and current catalogs. Keep private originals and immutable history.
 - Current KyoboD has 25 photographs, with KyoboD-031 still the cover. Current total is 26 projects / 784 photographs. Other project photographs and all project ordering remain unchanged. This supersedes the restored 806-photo count above.
 
+- KyoboD-only viewing trial: show one uncropped photograph with previous/next arrows, a current/total counter, and clickable thumbnails below. This user-requested exception supersedes the no-thumbnail rule only for `kyobo-hottracks-2015`; other projects retain their existing layout.
+
 <!-- BEGIN:nextjs-agent-rules -->
 
 ## This is NOT the Next.js you know

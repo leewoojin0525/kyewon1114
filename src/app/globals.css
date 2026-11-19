@@ -2395,3 +2395,27 @@ figcaption {
     gap: 24px;
   }
 }
+
+/* KyoboD-only slideshow trial. */
+.project-slideshow { max-width: 1280px; margin: 0 auto; padding: 0 13px 32px; }
+.project-slideshow-stage { display: grid; grid-template-columns: 44px minmax(0, 1fr) 44px; align-items: center; gap: 8px; }
+.project-slide-image { height: clamp(280px, 62svh, 720px); min-width: 0; }
+.project-slide-image .zoom-photo { display: block; width: 100%; height: 100%; }
+.project-slide-image img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.project-slide-arrow { width: 44px; height: 44px; padding: 0; border: 0; background: transparent; color: inherit; font-size: 22px; cursor: pointer; }
+.project-slide-arrow:disabled { opacity: .25; cursor: default; }
+.project-slide-count { margin: 14px 0; text-align: center; font-size: 10px; letter-spacing: .08em; font-variant-numeric: tabular-nums; }
+.project-slide-thumbnails { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; max-width: 1100px; margin: 0 auto; }
+.project-slide-thumbnail { width: 56px; height: 44px; padding: 2px; border: 1px solid transparent; background: transparent; cursor: pointer; opacity: .5; }
+.project-slide-thumbnail img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.project-slide-thumbnail[aria-current="true"] { border-color: #222; opacity: 1; }
+.project-slide-thumbnail:hover { opacity: 1; }
+.project-slide-arrow:focus-visible, .project-slide-thumbnail:focus-visible { outline: 2px solid #555; outline-offset: 2px; }
+@media (max-width: 600px) {
+  .project-slideshow { padding: 0 4px 24px; }
+  .project-slideshow-stage { grid-template-columns: 44px minmax(0, 1fr) 44px; gap: 0; }
+  .project-slide-image { height: clamp(240px, 48svh, 480px); }
+  .project-slide-thumbnails { padding: 0 10px; }
+  .project-slide-thumbnail { width: 44px; }
+}
+.project-slide-count .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
