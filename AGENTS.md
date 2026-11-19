@@ -54,6 +54,8 @@
 
 ## Photo review retention rule — 2026-11-19
 
+- The private interactive review list supports visual ordering with first/previous/next buttons and desktop image drag-and-drop. Automatically number and persist the edited project order, and export requests in that order. These controls never directly modify website publications.
+
 - Removing a photograph from the website must NOT remove its card from the private review list. Keep its thumbnail and stable filename/reference, visibly mark it `삭제됨`, distinguish its former order from current public order, and offer `복원 요청` in the review request export.
 - Preserve private source files and review history. Restore to the website only on an explicit user restoration request through the normal reviewed publication workflow. Never merge review-only history into public catalogs or public media permissions.
 - Maintain `.data/photo-review-history.json` when rebuilding the interactive review list. Counts must separately identify currently published and deleted photographs. This supersedes earlier instructions to remove deleted cards from the review list; unrelated legacy sets must not be reintroduced.
