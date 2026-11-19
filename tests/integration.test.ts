@@ -120,6 +120,33 @@ function validData(title = "DEMO — 권한 시험") {
     ],
   };
 }
+test("a single-photo project publishes its reviewed cover and still requires rights", async () => {
+  const data = { ...validData(), slug: "single-photo-project", blocks: [] };
+  const created = await content.createContent(owner, "projects", data);
+  await assert.rejects(
+    content.workflow(editor, created.id, "publish", created.version),
+    { status: 403 },
+  );
+  await content.workflow(owner, created.id, "review", created.version);
+  await content.workflow(owner, created.id, "publish", created.version);
+  const { doc } = await content.publicBySlug("projects", data.slug);
+  assert.ok(doc);
+  assert.equal(doc.data.hero?.id, asset.id);
+  assert.deepEqual(doc.data.blocks, []);
+  await content.saveDraft(owner, created.id, created.version, {
+    ...data,
+    creditConfirmed: false,
+  });
+  await assert.rejects(
+    content.workflow(owner, created.id, "publish", created.version + 1),
+    { status: 422 },
+  );
+  assert.equal(
+    (await content.publicBySlug("projects", data.slug)).doc?.version,
+    created.version,
+  );
+  await content.workflow(owner, created.id, "unpublish", created.version + 1);
+});
 test("large project galleries serve only the published photo inside a private bundle", async () => {
   const photo = await media.getBlob(asset.derivatives[0].key);
   const prefix = Buffer.from("PRIVATE-BEFORE"),

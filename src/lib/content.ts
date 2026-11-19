@@ -68,14 +68,13 @@ async function validatePublication(db: PoolClient, kind: Kind, raw: unknown) {
       !d.title.trim() ||
       !d.slug ||
       !d.hero ||
-      (kind === "projects" && !d.blocks.length) ||
       !d.creditConfirmed ||
       (kind === "journal" && (!d.summary.trim() || !d.credits.trim()))
     )
       throw new AppError(
         422,
         kind === "projects"
-          ? "제목·주소·대표 사진·본문 사진·사진 사용 권리 확인이 필요합니다."
+          ? "제목·주소·대표 사진·사진 사용 권리 확인이 필요합니다."
           : "제목·주소·요약·게재 지면·확인된 크레딧이 필요합니다.",
       );
     if (
@@ -108,11 +107,6 @@ async function validatePublication(db: PoolClient, kind: Kind, raw: unknown) {
     }
     if (imagesIn(d).some((p) => !p.alt.trim()))
       throw new AppError(422, "모든 사진에 대체 텍스트를 입력하세요.");
-    if (
-      kind === "projects" &&
-      !d.blocks.some((b) => b.type === "image" || b.type === "pair")
-    )
-      throw new AppError(422, "프로젝트 본문 사진을 추가하세요.");
     await requireAssets(db, d);
   }
   return data;

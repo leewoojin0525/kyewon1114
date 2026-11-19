@@ -40,14 +40,21 @@ start('홈페이지 사진 목록표',f'{len(plan["projects"])} projects / {len(
 text(34,H-125,'사진 고정 번호로 순서 변경과 삭제를 요청해 주세요.',11)
 text(34,H-145,'예: Samjeon-014를 대표사진으로 / Tied-008 삭제 / S-house-009를 두 번째로',9)
 text(34,H-164,'작품명-번호는 고정 파일 번호입니다. 현재 순서와 대표사진 여부는 별도로 표시합니다.',8)
-text(34,H-181,'현재 홈페이지에 공개된 사진만 수록했습니다. 제외 사진은 이 문서에 남기지 않습니다.',8)
-text(34,H-198,'삼전동: 고용량 원본을 웹용으로 변환한 31장만 새로 등록했습니다.',8)
+text(34,H-181,'현재 홈페이지에 등록된 사진만 수록한 새 목록입니다.',8)
+text(34,H-198,'고용량 원본 재변환 작품과 기존 사진 유지 작품을 구분했습니다.',8)
 text(34,H-220,'작품 번호',8);text(102,H-220,'프로젝트',8);text(W-87,H-220,'사진 수',8)
 y=H-241
 for i,p in enumerate(plan['projects'],1):
  count=sum(1 for x in plan['photos'] if x['projectId']==p['id'])
  text(34,y,f'P{i:02d}',8,'Arial');text(102,y,p['title'],8,'Arial');text(W-80,y,str(count),8,'Arial')
  y-=18
+c.showPage()
+start('기존 사진 유지 작품', '저용량 자료 또는 원본 출처 확인이 필요한 작품')
+y=H-130
+for g in scope['groups']:
+ if '유지' in g['sourceStatus']:
+  text(34,y,g['title'],11,'Arial');text(34,y-20,g['sourceStatus'],9);y-=58
+text(34,90,'이 작품의 사진은 삭제하지 않고 현재 등록 상태를 그대로 유지했습니다.',9)
 c.showPage()
 for idx,p in enumerate(plan['projects'],1):
  photos=sorted([x for x in plan['photos'] if x['projectId']==p['id']],key=lambda x:x['order'])
@@ -69,6 +76,6 @@ for idx,p in enumerate(plan['projects'],1):
 c.save()
 reader=PdfReader(str(pdf))
 alltext='\n'.join(p.extract_text() for p in reader.pages)
-assert len(reader.pages)==1+sum(math.ceil(sum(x['projectId']==p['id'] for x in plan['photos'])/9) for p in plan['projects'])
+assert len(reader.pages)==2+sum(math.ceil(sum(x['projectId']==p['id'] for x in plan['photos'])/9) for p in plan['projects'])
 for x in plan['photos']:assert x['reference'] in alltext,x['reference']
 print(json.dumps({'file':str(pdf),'pages':len(reader.pages),'photos':len(plan['photos']),'bytes':pdf.stat().st_size}))
