@@ -71,3 +71,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
 <!-- END:nextjs-agent-rules -->
+
+## All-project gallery — latest user revision
+
+- Apply the enlarged KyoboD slideshow to every project detail page: uncropped large image, overlaid previous/next arrows, current/total count, and one auto-scrolling row of clickable thumbnails. This supersedes the KyoboD-only trial and earlier no-thumbnail rule. Keep public photo order and covers intact; Press keeps its existing publication layout. Reset the slideshow on project identity or publication-version changes.

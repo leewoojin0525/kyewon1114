@@ -170,7 +170,7 @@ export async function Detail({
 }) {
   const d = doc.data;
   const photos = imagesIn(d);
-  const slideshow = doc.kind === "projects" && d.slug === "kyobo-hottracks-2015";
+  const slideshow = doc.kind === "projects";
   const media = await mediaInfo(photos.map((p) => p.id));
   const items = photos.flatMap((p) => {
     const m = media.find((m) => m.id === p.id);
@@ -211,7 +211,7 @@ export async function Detail({
           )}
         </div>
         <h1>{d.title}</h1>
-        {slideshow ? <ProjectSlideshow key={doc.version} items={items} /> : d.hero && (
+        {slideshow ? <ProjectSlideshow key={`${doc.id}:${doc.version}`} items={items} /> : d.hero && (
           <PhotoImage photo={d.hero} priority className="detail-hero" />
         )}
         {doc.kind === "journal" && (
