@@ -1,10 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ZoomImage, type GalleryItem } from "./gallery";
 
 export function ProjectSlideshow({ items }: { items: GalleryItem[] }) {
   const [current, setCurrent] = useState(0);
+  const thumbnails = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const strip = thumbnails.current;
+    const selected = strip?.children[current] as HTMLElement | undefined;
+    if (strip && selected) {
+      strip.scrollTo({
+        left: selected.offsetLeft - strip.offsetLeft - (strip.clientWidth - selected.clientWidth) / 2,
+        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth",
+      });
+    }
+  }, [current]);
   if (!items.length) return null;
   const photo = items[current];
   function move(step: number) {
@@ -35,7 +46,7 @@ export function ProjectSlideshow({ items }: { items: GalleryItem[] }) {
         <span aria-hidden="true">{current + 1}/{items.length}</span>
         <span className="sr-only">Photograph {current + 1} of {items.length}</span>
       </p>
-      <div className="project-slide-thumbnails" aria-label="Choose a photograph">
+      <div ref={thumbnails} className="project-slide-thumbnails" aria-label="Choose a photograph">
         {items.map((item, index) => (
           <button type="button" key={item.id} className="project-slide-thumbnail" aria-label={`Show photograph ${index + 1}`} aria-current={index === current ? "true" : undefined} onClick={() => setCurrent(index)}>
             <img src={item.src} alt="" width={item.width} height={item.height} loading="lazy" draggable={false} />
