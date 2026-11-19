@@ -31,7 +31,7 @@ def start(title,sub):
  global page
  page+=1
  text(34,H-40,'WOVN',20,'Arial')
- text(34,H-66,title,14)
+ text(34,H-66,title,14,'Arial' if title.startswith('P') else 'Korean')
  text(34,H-85,sub,8,color='#777777')
  c.setStrokeColorRGB(.83,.83,.81);c.line(34,H-98,W-34,H-98)
  text(34,23,'2026.11.19  |  kyewon1114.vercel.app  |  PHOTO REFERENCE',7,'Arial', '#777777')
