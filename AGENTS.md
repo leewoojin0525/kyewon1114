@@ -80,6 +80,8 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 ## Cover follows photograph one — latest user rule
 
+- Samjeon-018 latest user-authorized retouch supersedes the crop-only derivative: darkened right-neighbor window interiors, removed the two left-background crosses and their entire steel towers, and dimmed distracting left storefront sign lights. Store AI-retouch provenance privately and preserve the original/crop versions. Keep the reference number, first position, and total photo count unchanged; website and review catalogs use the retouched web derivative.
+
 - Samjeon-018 uses the user's requested tighter crop from the preserved 8256×5498 original: left 650, top 350, width 7050, height 4700; web derivative 2400×1600 WebP. Keep the entire building visible and retain the stable reference number. The earlier uncropped derivative remains private history, not an extra gallery photo.
 
 - Every project cover must always use the first photograph in its current gallery order (`imagesIn(data)[0]`), including project cards, home selections, featured home cover, and social metadata. Review lists/PDFs identify that first photograph as the cover. This supersedes independent cover selection and the earlier Samjeon-012 cover instruction; Samjeon now uses Samjeon-018. Reordering the first photograph changes the cover automatically. Press is unchanged.
