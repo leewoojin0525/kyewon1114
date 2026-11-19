@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { imagesIn } from "@/lib/model";
 import { listPublic, publicSettings } from "@/lib/content";
 import { PhotoImage } from "@/components/photos";
 import { SectionTitle, ProjectCard, EmptyState } from "@/components/editorial";
@@ -27,7 +28,7 @@ export default async function Home() {
               aria-label={`View ${hero.data.title}`}
             >
               <PhotoImage
-                photo={hero.data.hero!}
+                photo={imagesIn(hero.data)[0]}
                 priority
                 className="cover-image"
               />

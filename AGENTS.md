@@ -77,3 +77,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Request file (5) adds Samjeon gallery ordering: start with Samjeon-018, keep Samjeon-012 tenth in the gallery and retain it as the project cover. Use the optional `galleryOrder` field to distinguish display order from `hero`; keep media access tied to actual photo references. Kyobo actions in this file repeat the already applied request and must not be applied twice.
 
 - Apply the enlarged KyoboD slideshow to every project detail page: uncropped large image, overlaid previous/next arrows, current/total count, and one auto-scrolling row of clickable thumbnails. This supersedes the KyoboD-only trial and earlier no-thumbnail rule. Keep public photo order and covers intact; Press keeps its existing publication layout. Reset the slideshow on project identity or publication-version changes.
+
+## Cover follows photograph one — latest user rule
+
+- Every project cover must always use the first photograph in its current gallery order (`imagesIn(data)[0]`), including project cards, home selections, featured home cover, and social metadata. Review lists/PDFs identify that first photograph as the cover. This supersedes independent cover selection and the earlier Samjeon-012 cover instruction; Samjeon now uses Samjeon-018. Reordering the first photograph changes the cover automatically. Press is unchanged.

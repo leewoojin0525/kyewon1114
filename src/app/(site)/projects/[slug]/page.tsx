@@ -1,3 +1,4 @@
+import { imagesIn } from "@/lib/model";
 import { notFound, permanentRedirect } from "next/navigation";
 import { Detail, SectionTitle, ProjectCard } from "@/components/editorial";
 import { listPublic, publicBySlug } from "@/lib/content";
@@ -6,7 +7,7 @@ type Props = { params: Promise<{ slug: string }> };
 export async function generateMetadata({ params }: Props) {
   const { doc } = await publicBySlug("projects", (await params).slug);
   if (!doc) return {};
-  const [m] = await mediaInfo([doc.data.hero!.id]);
+  const [m] = await mediaInfo([imagesIn(doc.data)[0].id]);
   return {
     title: doc.data.seoTitle || doc.data.title,
     description: doc.data.seoDescription || doc.data.summary,

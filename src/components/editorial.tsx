@@ -68,6 +68,7 @@ export async function ProjectCard({
   index?: number;
 }) {
   const d = doc.data;
+  const cover = doc.kind === "projects" ? imagesIn(d)[0] : d.hero;
   return (
     <article
       className={`project-card ${doc.kind === "projects" ? "project-tile" : "press-card"}`}
@@ -75,9 +76,9 @@ export async function ProjectCard({
       <Link
         href={`/${doc.kind === "journal" ? "press" : "projects"}/${d.slug}`}
       >
-        {d.hero && (
+        {cover && (
           <PhotoImage
-            photo={d.hero}
+            photo={cover}
             className="card-image"
             sizes="(max-width:767px) 100vw, 50vw"
           />

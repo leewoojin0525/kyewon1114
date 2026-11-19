@@ -10,6 +10,7 @@ history_path = root / '.data/photo-review-history.json'
 history = json.loads(history_path.read_text()) if history_path.exists() else {}
 active_refs = {p['reference'] for g in groups for p in g['photos']}
 for group in groups:
+    group['heroReference'] = group['photos'][0]['reference'] if group['photos'] else ''
     for p in group['photos']:
         history[p['reference']] = dict(p, slug=group['slug'], title=group['title'])
 history_path.write_text(json.dumps(history, ensure_ascii=False, indent=2))
