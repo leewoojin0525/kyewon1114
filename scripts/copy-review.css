@@ -1,0 +1,405 @@
+:root {
+  color-scheme: light;
+  --ink: #292b27;
+  --muted: #696c64;
+  --green: #286247;
+  --paper: #f7f7f2;
+  --line: #d9dcd3;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font:
+    15px/1.7 -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+  border: 1px solid #bfc5b9;
+  border-radius: 5px;
+  background: white;
+}
+button,
+select {
+  min-height: 44px;
+  padding: 8px 12px;
+}
+button {
+  cursor: pointer;
+}
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+a:focus-visible,
+summary:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 3px;
+}
+button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+a {
+  color: var(--green);
+  text-underline-offset: 4px;
+}
+.page-header {
+  padding: 38px max(4vw, 20px) 28px;
+  background: white;
+  border-bottom: 1px solid var(--line);
+}
+.eyebrow {
+  font-size: 12px;
+  color: var(--green);
+  margin: 0 0 12px;
+}
+h1 {
+  font-size: 26px;
+  line-height: 1.45;
+  font-weight: 550;
+  margin: 0 0 18px;
+}
+.page-header p {
+  max-width: 860px;
+}
+.guide {
+  color: var(--muted);
+  font-size: 13px;
+}
+.resource-links {
+  display: flex;
+  gap: 22px;
+  flex-wrap: wrap;
+  font-size: 13px;
+}
+.toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 14px max(4vw, 20px);
+  background: #f7f7f2f7;
+  border-bottom: 1px solid var(--line);
+}
+.toolbar select {
+  max-width: 310px;
+}
+#search {
+  padding: 8px 12px;
+  min-height: 44px;
+  width: 200px;
+}
+.check {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  min-height: 44px;
+  padding: 4px;
+  font-size: 13px;
+}
+input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--green);
+}
+.primary {
+  background: var(--green);
+  color: white;
+  border-color: var(--green);
+}
+.pending-count {
+  color: var(--green);
+  font-weight: 600;
+  font-size: 13px;
+}
+.list-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  margin: 20px max(4vw, 20px) 0;
+}
+.language-view {
+  display: flex;
+  gap: 5px;
+}
+.language-view button {
+  font-size: 13px;
+}
+.language-view button[aria-pressed="true"] {
+  background: #e3ebe2;
+  border-color: var(--green);
+  color: var(--green);
+}
+#visible-count {
+  font-size: 13px;
+  color: var(--muted);
+}
+.backup {
+  margin-left: auto;
+  max-width: 480px;
+  font-size: 12px;
+}
+summary {
+  cursor: pointer;
+  padding: 7px 0;
+}
+.backup button {
+  font-size: 12px;
+}
+.status,
+#empty {
+  margin: 12px max(4vw, 20px);
+  font-size: 13px;
+  min-height: 23px;
+  color: var(--green);
+}
+#cards {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 8px max(4vw, 20px) 60px;
+}
+.copy-card {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  margin-bottom: 28px;
+  padding: 24px;
+  scroll-margin-top: 160px;
+}
+.copy-card.is-changed {
+  border-color: var(--green);
+  box-shadow: inset 3px 0 var(--green);
+}
+.copy-card[hidden] {
+  display: none;
+}
+.card-header {
+  display: flex;
+  gap: 22px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.cover {
+  width: 160px;
+  height: 110px;
+  object-fit: contain;
+  background: #f1f1eb;
+  flex: none;
+}
+.card-heading {
+  flex: 1;
+  min-width: 0;
+}
+.code {
+  display: inline-block;
+  font-size: 12px;
+  color: var(--green);
+  margin-right: 10px;
+  font-weight: 600;
+}
+.badge {
+  display: inline-block;
+  color: var(--muted);
+  font-size: 12px;
+}
+.is-changed .badge {
+  color: var(--green);
+}
+h2 {
+  font-size: 19px;
+  line-height: 1.4;
+  font-weight: 550;
+  margin: 6px 0;
+  overflow-wrap: anywhere;
+}
+.card-header p {
+  margin: 5px 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+.card-header a {
+  font-size: 12px;
+}
+.fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px 24px;
+}
+.field {
+  min-width: 0;
+}
+.field[data-field="titleEn"] {
+  grid-column: 1/-1;
+  max-width: 700px;
+}
+.field > label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  margin: 0 0 6px;
+}
+.field textarea,
+.field input {
+  display: block;
+  width: 100%;
+  padding: 13px 15px;
+  line-height: 1.85;
+  font-size: 15px;
+}
+.field textarea {
+  min-height: 130px;
+  resize: vertical;
+  overflow: auto;
+}
+.field input {
+  min-height: 48px;
+}
+.field.is-edited textarea,
+.field.is-edited input {
+  border-color: var(--green);
+  background: #fbfdf9;
+}
+.field-hint {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+}
+.card-options {
+  margin-top: 18px;
+  display: flex;
+  gap: 12px 22px;
+  flex-wrap: wrap;
+}
+.note-label {
+  display: block;
+  margin: 12px 0 6px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.request-note {
+  width: 100%;
+  padding: 12px 15px;
+  line-height: 1.7;
+  font-size: 14px;
+  min-height: 82px;
+  resize: vertical;
+}
+.card-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+.card-actions button {
+  font-size: 12px;
+}
+.reference {
+  border-top: 1px solid #e5e7e0;
+  margin-top: 18px;
+  padding-top: 7px;
+  font-size: 13px;
+}
+.reference pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font: inherit;
+  color: var(--muted);
+  margin: 4px 0 20px;
+}
+.reference h3 {
+  font-size: 13px;
+  font-weight: 600;
+  margin: 14px 0 4px;
+}
+.sources {
+  color: var(--muted);
+  font-size: 12px;
+}
+.sources ul {
+  padding-left: 20px;
+}
+.stale {
+  background: #fff3d7;
+  color: #765513;
+  font-size: 13px;
+  padding: 10px 12px;
+  margin-bottom: 14px;
+}
+body[data-language="ko"] .field[data-language="en"],
+body[data-language="en"] .field[data-language="ko"] {
+  display: none;
+}
+body[data-language="ko"] .fields,
+body[data-language="en"] .fields {
+  grid-template-columns: minmax(0, 1fr);
+}
+@media (max-width: 700px) {
+  h1 {
+    font-size: 23px;
+  }
+  .page-header {
+    padding-top: 26px;
+  }
+  .toolbar {
+    gap: 6px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+  #scope {
+    width: calc(35% - 3px);
+  }
+  #entry {
+    width: calc(65% - 3px);
+    max-width: none;
+  }
+  #search {
+    width: 100%;
+  }
+  .toolbar button {
+    font-size: 13px;
+  }
+  .copy-card {
+    padding: 18px;
+  }
+  .card-header {
+    align-items: flex-start;
+    gap: 14px;
+  }
+  .cover {
+    width: 92px;
+    height: 80px;
+  }
+  h2 {
+    font-size: 17px;
+  }
+  .fields {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+  .field textarea,
+  .field input {
+    font-size: 16px;
+  }
+  .backup {
+    margin-left: 0;
+    width: 100%;
+  }
+  .card-options {
+    gap: 4px;
+  }
+}

@@ -125,3 +125,26 @@ The media GET route first reads verified immutable derivatives from `.site-media
 Prepare the reviewed full-photo library with `node scripts/prepare-bundled-media.mjs` on the archive host, then run typecheck, tests and build. Deploy from that host using the authenticated Vercel CLI, verify the staged production build, then promote it. The production build fails if the private manifest is missing. Git auto-deploy is disabled because the public repository deliberately excludes these private display files; pushing source alone must not replace a working media deployment. Source commits remain on GitHub.
 
 The preparation requires the private plan in `.data/full-library-20261118/plan.json`, verified source files, and current Press media mirrored under `.data/verified-backup-media-20261118`. Refresh the plan and verified mirror for future photo changes. Keep the separate full database/media backups; the display bundle is not a backup of originals. Existing Blob reads remain available as a fallback for media added after suspension ends.
+
+### Private bilingual copy review
+
+`scripts/export-copy-review-baseline.ts --production` verifies the bilingual
+editorial source against current published project and Studio text, without
+changing the database. Refresh the bilingual sources and photo catalog before
+running it. `scripts/create-copy-review.py` then builds the self-contained private
+`output/review/WOVN-Copy-Review.html` using `copy-review-template.html`,
+`copy-review.css`, and `copy-review.js`. The initial edition contains 27 project
+records and 17 Studio records; thumbnails come from the current project covers.
+
+The review keeps original text alongside locally saved edits, notes, and requests
+to hide text. It exports `WOVN-글변경요청.txt` and a separate portable JSON backup.
+Edits do not publish or synchronize with Drive automatically. Future application
+of a request must compare its stable record ID, source hash, and expected public
+version before using the normal Owner publication workflow. Older-source edits
+remain flagged and export both baselines; importing a different edit over an
+existing edit is refused.
+
+The private delivery manifest and verification evidence are in
+`.data/copy-review-20261120/`. Update the existing Drive HTML file recorded there
+when issuing a later edition, preserving its link in the native Start document.
+Never put this private review or its editable bilingual source under `public/`.
