@@ -923,3 +923,145 @@
   text-decoration-color: rgb(35 35 35 / 22%);
   text-underline-offset: 6px;
 }
+
+/* Observations retain their photographic proportions and a quiet reading column. */
+.public-site .observation-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 72px 4vw;
+  padding-bottom: 96px;
+}
+.public-site .observation-card a {
+  display: block;
+}
+.public-site .observation-cover {
+  display: block;
+  background: #f5f4f0;
+}
+.public-site .observation-cover img {
+  width: 100%;
+  height: 54vh;
+  min-height: 300px;
+  max-height: 650px;
+  object-fit: contain;
+}
+.public-site .observation-card h2 {
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0.015em;
+  margin: 20px 0 8px;
+}
+.public-site .observation-card p {
+  max-width: 42em;
+  font-size: 13px;
+  line-height: 1.7;
+  color: #73716b;
+  margin: 0;
+}
+.public-site .observation-detail {
+  padding-top: 36px;
+  padding-bottom: 64px;
+}
+.public-site .observation-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr);
+  gap: 6vw;
+  margin-top: 32px;
+  align-items: start;
+}
+.public-site .observation-photo {
+  margin: 0;
+}
+.public-site .observation-photo picture {
+  display: block;
+}
+.public-site .observation-photo img {
+  width: 100%;
+  height: auto;
+  max-height: 78vh;
+  object-fit: contain;
+}
+.public-site .observation-photo figcaption {
+  font-size: 11px;
+  color: #77756f;
+  line-height: 1.7;
+  margin-top: 12px;
+}
+.public-site .observation-writing {
+  max-width: 540px;
+  padding-top: 12px;
+}
+.public-site .observation-writing h1 {
+  font-family: inherit;
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0.01em;
+  margin: 0 0 14px;
+}
+.public-site .observation-author {
+  font-size: 11px;
+  color: #77756f;
+  margin-bottom: 32px;
+}
+.public-site .observation-writing .block {
+  margin: 0;
+}
+.public-site .observation-writing .block-text {
+  display: block;
+  padding: 0;
+}
+.public-site .observation-writing .block-text h2:empty {
+  display: none;
+}
+.public-site .observation-writing .prose {
+  max-width: none;
+  font-size: 15px;
+  line-height: 1.85;
+  letter-spacing: 0;
+}
+.public-site .observation-source {
+  margin-top: 32px;
+  font-size: 11px;
+  color: #77756f;
+}
+.public-site .observation-related {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 72px;
+}
+@media (max-width: 767px) {
+  .public-site .observation-grid {
+    grid-template-columns: 1fr;
+    gap: 44px;
+    padding-bottom: 64px;
+  }
+  .public-site .observation-cover img {
+    height: auto;
+    min-height: 0;
+    max-height: 70vh;
+  }
+  .public-site .observation-layout {
+    grid-template-columns: 1fr;
+    gap: 28px;
+    margin-top: 24px;
+  }
+  .public-site .observation-photo img {
+    max-height: none;
+  }
+  .public-site .observation-writing {
+    padding-top: 0;
+  }
+  .public-site .observation-writing h1 {
+    font-size: 18px;
+  }
+  .public-site .observation-writing .prose {
+    font-size: 14px;
+  }
+  .public-site .observation-related {
+    gap: 16px;
+  }
+}

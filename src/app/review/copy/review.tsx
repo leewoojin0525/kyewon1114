@@ -149,7 +149,7 @@ export function CopyReview({ records }: { records: CopyRecord[] }) {
         </a>
         <h1>글 읽기·수정 요청</h1>
         <p>
-          프로젝트와 Studio 원고를 한글·영문으로 읽고,
+          프로젝트·Studio·Journal 원고를 한글·영문으로 읽고,
           <br />
           고칠 문장이나 의견을 남겨주세요.
         </p>
@@ -177,6 +177,12 @@ export function CopyReview({ records }: { records: CopyRecord[] }) {
             onClick={() => setKind("studio")}
           >
             Studio <b>{records.filter((r) => r.kind === "studio").length}</b>
+          </button>
+          <button
+            aria-pressed={kind === "journal"}
+            onClick={() => setKind("journal")}
+          >
+            Journal <b>{records.filter((r) => r.kind === "journal").length}</b>
           </button>
         </div>
         <div className={styles.filters}>
@@ -276,8 +282,7 @@ export function CopyReview({ records }: { records: CopyRecord[] }) {
                 )}
                 <div>
                   <span className={styles.code}>
-                    {record.code} ·{" "}
-                    {record.kind === "project" ? "PROJECT" : "STUDIO"}
+                    {record.code} · {record.kind.toUpperCase()}
                   </span>
                   <h2>{record.title}</h2>
                   {edit && (

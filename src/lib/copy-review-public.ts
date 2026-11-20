@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { settingsSchema, imagesIn, type Publication } from "./model";
 import type { MediaInfo } from "./media";
 import type { CopyRecord, CopyValues } from "./copy-review";
+import { isJournalEntry } from "./editorial-section";
 
 export type CopyTranslations = {
   schemaVersion: 1;
@@ -10,6 +11,7 @@ export type CopyTranslations = {
     english: Partial<CopyValues> & { en: string };
     ko: string;
     headingKo?: string;
+    code?: string;
   }[];
 };
 
@@ -19,6 +21,7 @@ export function publicCopyReview(
   publishedSettings: Publication | undefined,
   bundle: CopyTranslations,
   media: MediaInfo[] = [],
+  journals: Publication[] = [],
 ): CopyRecord[] {
   const translations = new Map(
     bundle.records.map((record) => [record.id, record]),
@@ -64,7 +67,7 @@ export function publicCopyReview(
   projects.forEach((project, index) => {
     const photo = imagesIn(project.data)[0];
     const derivative = assets
-      .get(photo?.id)
+      .get(photo?.id || "")
       ?.derivatives.toSorted((a, b) => a.width - b.width)[0];
     const body = project.data.blocks
       .filter((block) => block.type === "text")
@@ -84,6 +87,35 @@ export function publicCopyReview(
           : {}),
       },
       { titleEn: project.data.title, en: body },
+    );
+  });
+  journals.filter(isJournalEntry).forEach((journal, index) => {
+    const photo = journal.data.hero;
+    const derivative = assets
+      .get(photo?.id || "")
+      ?.derivatives.toSorted((a, b) => a.width - b.width)[0];
+    const body =
+      journal.data.blocks
+        .filter((block) => block.type === "text")
+        .map((block) => [block.heading, block.body].filter(Boolean).join("\n"))
+        .join("\n\n") || journal.data.summary;
+    const id = `journal:${journal.id}`;
+    add(
+      {
+        id,
+        code:
+          translations.get(id)?.code ||
+          `J${String(index + 1).padStart(2, "0")}`,
+        kind: "journal",
+        title: journal.data.title,
+        contentId: journal.id,
+        version: journal.version,
+        sourcePath: "journal.body",
+        ...(derivative && photo
+          ? { cover: { src: `/media/${derivative.key}`, alt: photo.alt } }
+          : {}),
+      },
+      { titleEn: journal.data.title, en: body },
     );
   });
   if (!publishedSettings) return records;

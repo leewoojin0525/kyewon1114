@@ -1,5 +1,6 @@
 import { listPublic } from "@/lib/content";
 import { appURL, isLive } from "@/lib/env";
+import { publicContentPath } from "@/lib/editorial-section";
 export const dynamic = "force-dynamic";
 export default async function sitemap() {
   if (!isLive) return [];
@@ -8,11 +9,17 @@ export default async function sitemap() {
     ...(await listPublic("journal")),
   ];
   return [
-    ...["", "/projects", "/studio", "/press", "/contact", "/privacy"].map(
-      (path) => ({ url: appURL + path }),
-    ),
+    ...[
+      "",
+      "/projects",
+      "/studio",
+      "/press",
+      "/journal",
+      "/contact",
+      "/privacy",
+    ].map((path) => ({ url: appURL + path })),
     ...docs.map((d) => ({
-      url: `${appURL}/${d.kind === "journal" ? "press" : "projects"}/${d.data.slug}`,
+      url: appURL + publicContentPath(d),
       lastModified: new Date(d.published_at),
     })),
   ];

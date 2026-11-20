@@ -17,6 +17,7 @@ import {
 } from "./model";
 import { isLive } from "./env";
 import { settingsPublicationAllowed } from "./settings-publication";
+import { pressCategories, observationCategories } from "./editorial-section";
 
 async function requireAssets(db: PoolClient, data: Record<string, unknown>) {
   const ids = mediaIds(data);
@@ -93,7 +94,7 @@ async function validatePublication(
         422,
         kind === "projects"
           ? "제목·주소·대표 사진·사진 사용 권리 확인이 필요합니다."
-          : "제목·주소·요약·게재 지면·확인된 크레딧이 필요합니다.",
+          : "제목·주소·요약·대표 사진·확인된 크레딧이 필요합니다.",
       );
     if (
       kind === "projects" &&
@@ -345,14 +346,36 @@ export const publicPressIndex = cache(
   async function publicPressIndex(): Promise<Publication[]> {
     const { rows } = await pool.query<Publication>(
       `SELECT c.id,c.kind,c.published_version AS version,c.published_at,
-       jsonb_build_object('title',v.data->'title','slug',v.data->'slug','hero',v.data->'hero',
+       jsonb_build_object('title',v.data->'title','slug',v.data->'slug','hero',v.data->'hero','category',v.data->'category',
          'publicationName',COALESCE(v.data->'publicationName','""'::jsonb),
          'publicationIssue',COALESCE(v.data->'publicationIssue','""'::jsonb)) AS data
      FROM w_content c JOIN w_versions v ON v.content_id=c.id AND v.version=c.published_version
-     WHERE c.kind='journal' AND ($1::boolean=false OR COALESCE((v.data->>'demo')::boolean,false)=false)
+     WHERE c.kind='journal' AND v.data->>'category'=ANY($2::text[])
+       AND ($1::boolean=false OR COALESCE((v.data->>'demo')::boolean,false)=false)
      ORDER BY COALESCE((v.data->>'pinned')::boolean,false) DESC,
        COALESCE((v.data->>'order')::int,9999),c.published_at DESC,c.id`,
-      [isLive],
+      [isLive, pressCategories],
+    );
+    return rows.map((row) => ({
+      ...row,
+      data: documentSchema.parse(row.data),
+    }));
+  },
+);
+
+/** A separate, lightweight index for the owner's observations and working notes. */
+export const publicJournalIndex = cache(
+  async function publicJournalIndex(): Promise<Publication[]> {
+    const { rows } = await pool.query<Publication>(
+      `SELECT c.id,c.kind,c.published_version AS version,c.published_at,
+       jsonb_build_object('title',v.data->'title','slug',v.data->'slug',
+         'hero',v.data->'hero','category',v.data->'category','summary',v.data->'summary') AS data
+     FROM w_content c JOIN w_versions v ON v.content_id=c.id AND v.version=c.published_version
+     WHERE c.kind='journal' AND v.data->>'category'=ANY($2::text[])
+       AND ($1::boolean=false OR COALESCE((v.data->>'demo')::boolean,false)=false)
+     ORDER BY COALESCE((v.data->>'pinned')::boolean,false) DESC,
+       COALESCE((v.data->>'order')::int,9999),c.published_at DESC,c.id`,
+      [isLive, observationCategories],
     );
     return rows.map((row) => ({
       ...row,
@@ -375,7 +398,8 @@ export const publicPressPage = cache(async function publicPressPage(page = 1) {
     `WITH visible AS (
        SELECT c.id,c.kind,c.published_version AS version,c.published_at,v.data
        FROM w_content c JOIN w_versions v ON v.content_id=c.id AND v.version=c.published_version
-       WHERE c.kind='journal' AND ($1::boolean=false OR COALESCE((v.data->>'demo')::boolean,false)=false)
+       WHERE c.kind='journal' AND v.data->>'category'=ANY($4::text[])
+         AND ($1::boolean=false OR COALESCE((v.data->>'demo')::boolean,false)=false)
      ), totals AS (SELECT count(*)::int AS total FROM visible), bounds AS (
        SELECT total, LEAST($2::int,GREATEST(1,ceil(total::numeric/$3::int)::int)) AS page FROM totals
      )
@@ -384,7 +408,7 @@ export const publicPressPage = cache(async function publicPressPage(page = 1) {
        COALESCE((data->>'order')::int,9999),published_at DESC,id
        LIMIT $3::int OFFSET ((SELECT page FROM bounds)-1)*$3::int
      ) p),'[]'::json) AS documents FROM bounds`,
-    [isLive, Math.min(requested, 1000000), pageSize],
+    [isLive, Math.min(requested, 1000000), pageSize, pressCategories],
   );
   return { ...row, pages: Math.max(1, Math.ceil(row.total / pageSize)) };
 });

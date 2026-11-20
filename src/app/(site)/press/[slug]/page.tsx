@@ -2,6 +2,7 @@ import { notFound, permanentRedirect } from "next/navigation";
 import { Detail, ProjectCard, SectionTitle } from "@/components/editorial";
 import { listPublic, publicBySlug } from "@/lib/content";
 import { mediaInfo } from "@/lib/media";
+import { isJournalEntry, publicContentPath } from "@/lib/editorial-section";
 type Props = { params: Promise<{ slug: string }> };
 export async function generateMetadata({ params }: Props) {
   const { doc } = await publicBySlug("journal", (await params).slug);
@@ -11,7 +12,7 @@ export async function generateMetadata({ params }: Props) {
   return {
     title: doc.data.seoTitle || doc.data.title,
     description: doc.data.seoDescription || doc.data.summary,
-    alternates: { canonical: `/press/${doc.data.slug}` },
+    alternates: { canonical: publicContentPath(doc) },
     openGraph: {
       title: doc.data.title,
       images: image ? [`/media/${image.key}`] : [],
@@ -22,6 +23,7 @@ export default async function Page({ params }: Props) {
   const { doc, redirect } = await publicBySlug("journal", (await params).slug);
   if (redirect) permanentRedirect(`/press/${redirect}`);
   if (!doc) notFound();
+  if (isJournalEntry(doc)) permanentRedirect(publicContentPath(doc));
   const related = (await listPublic("projects")).filter((p) =>
     doc.data.relatedProjects.includes(p.id),
   );

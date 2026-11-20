@@ -783,7 +783,7 @@ export function Admin() {
   const labels: Record<string, string> = {
     overview: "작업실",
     projects: "프로젝트",
-    journal: "잡지 게재",
+    journal: "프레스·저널",
     media: "사진 보관함",
     settings: "홈·스튜디오·연락처",
     inquiries: "접수 문의",
@@ -1632,7 +1632,7 @@ export function Admin() {
                           create(kind);
                         }}
                       >
-                        {tab === "journal" ? "잡지 게재" : "프로젝트"} 초안
+                        {tab === "journal" ? "프레스·저널" : "프로젝트"} 초안
                         만들기 +
                       </button>
                     </div>

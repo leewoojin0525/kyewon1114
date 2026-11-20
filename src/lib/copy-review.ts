@@ -1,5 +1,5 @@
 export const copyFieldLabels = {
-  titleEn: "프로젝트 이름 (영문)",
+  titleEn: "제목 (영문)",
   headingKo: "한글 소제목",
   headingEn: "영문 소제목",
   ko: "한글 원고",
@@ -13,7 +13,7 @@ export type CopyValues = Partial<Record<CopyField, string>> & {
 export type CopyRecord = {
   id: string;
   code: string;
-  kind: "project" | "studio";
+  kind: "project" | "studio" | "journal";
   title: string;
   contentId: string;
   version: number;
@@ -106,7 +106,7 @@ export function restoreCopyDraft(raw: string | null): {
       if (
         !value ||
         typeof value.id !== "string" ||
-        !/^(project|studio):[a-z0-9-]+$/.test(value.id) ||
+        !/^(project|studio|journal):[a-z0-9-]+$/.test(value.id) ||
         ids.has(value.id) ||
         !Number.isInteger(value.expectedVersion) ||
         value.expectedVersion < 1 ||

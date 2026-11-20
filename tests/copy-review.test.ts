@@ -148,3 +148,72 @@ test("text requests export only changes with IDs and both old and current review
   assert.match(withdrawn, /현재 공개 목록에 없음/);
   assert.match(withdrawn, /새 한글/);
 });
+
+test("Journal review preserves shortlist codes, versions and matching translations without exposing Press or private evidence", () => {
+  const journal = {
+    ...project,
+    kind: "journal",
+    data: documentSchema.parse({
+      ...project.data,
+      category: "공간 관찰",
+      title: "SEASONS IN THE CITY",
+      summary: "Even in the city, the seasons linger.",
+      blocks: [{ type: "text", body: "Even in the city, the seasons linger." }],
+    }),
+  } as Publication;
+  const bundle: CopyTranslations = {
+    schemaVersion: 1,
+    records: [
+      {
+        id: `journal:${id}`,
+        code: "J02",
+        english: { titleEn: journal.data.title, en: journal.data.summary },
+        ko: "도심에도 계절은 머뭅니다.",
+      },
+    ],
+  };
+  const review = publicCopyReview(
+    [],
+    undefined,
+    bundle,
+    [],
+    [
+      journal,
+      {
+        ...journal,
+        id: "press",
+        data: { ...journal.data, category: "잡지 게재" },
+      },
+    ],
+  );
+  assert.equal(review.length, 1);
+  assert.equal(review[0].code, "J02");
+  assert.equal(review[0].original.ko, "도심에도 계절은 머뭅니다.");
+  assert.equal(review[0].kind, "journal");
+  assert(!JSON.stringify(review).includes("PRIVATE SOURCE"));
+  const edit = newCopyEdit(review[0]);
+  edit.note = "문장을 더 간결하게";
+  assert.equal(
+    restoreCopyDraft(JSON.stringify({ schemaVersion: 1, edits: [edit] })).draft
+      .edits[0].code,
+    "J02",
+  );
+  assert.match(
+    copyReviewRequest({ schemaVersion: 1, edits: [edit] }, review),
+    /J02/,
+  );
+  const changed = {
+    ...journal,
+    data: {
+      ...journal.data,
+      blocks: [
+        { type: "text" as const, heading: "", body: "New public wording" },
+      ],
+    },
+  };
+  assert.equal(
+    publicCopyReview([], undefined, bundle, [], [changed])[0]
+      .translationCurrent,
+    false,
+  );
+});

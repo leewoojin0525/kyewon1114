@@ -963,3 +963,62 @@ test("Press pagination returns four published snapshots and clamps page bounds",
     "paged-press-0",
   );
 });
+
+test("Journal stays separate from Press and exposes only reviewed public snapshots", async () => {
+  const { publicContentPath } = await import("../src/lib/editorial-section");
+  const pressBefore = await content.publicPressIndex();
+  const journal = await content.createContent(owner, "journal", {
+    ...validData("a-published-observation"),
+    slug: "a-published-observation",
+    category: "공간 관찰",
+    order: 1,
+    summary: "Approved observation",
+    blocks: [],
+  });
+  await content.workflow(owner, journal.id, "review", journal.version);
+  await content.workflow(owner, journal.id, "publish", journal.version);
+  const publicBefore = await content.getDraft(journal.id);
+  await content.saveDraft(owner, journal.id, journal.version, {
+    ...publicBefore!.data,
+    summary: "PRIVATE newer wording",
+    category: "잡지 게재",
+  });
+  await content.createContent(owner, "journal", {
+    ...validData("an-unpublished-observation"),
+    slug: "an-unpublished-observation",
+    category: "작업 기록",
+    blocks: [],
+  });
+  const journalIndex = await content.publicJournalIndex();
+  assert.deepEqual(
+    journalIndex.map((doc) => doc.id),
+    [journal.id],
+  );
+  assert.equal(journalIndex[0].data.summary, "Approved observation");
+  assert.equal(journalIndex[0].version, 1);
+  assert.equal(
+    publicContentPath(journalIndex[0]),
+    "/journal/a-published-observation",
+  );
+  assert.equal(publicContentPath(pressBefore[0]).startsWith("/press/"), true);
+  assert.deepEqual(
+    (await content.publicPressIndex()).map((doc) => doc.id),
+    pressBefore.map((doc) => doc.id),
+  );
+  assert.equal((await content.publicPressPage()).total, pressBefore.length);
+  const bySlug = await content.publicBySlug(
+    "journal",
+    "a-published-observation",
+  );
+  assert.equal(bySlug.doc?.data.summary, "Approved observation");
+  await assert.rejects(
+    content.workflow(owner, journal.id, "publish", 1),
+    /수정/,
+  );
+  await content.workflow(owner, journal.id, "unpublish", 2);
+  assert.deepEqual(await content.publicJournalIndex(), []);
+  assert.equal(
+    (await content.publicBySlug("journal", "a-published-observation")).doc,
+    undefined,
+  );
+});

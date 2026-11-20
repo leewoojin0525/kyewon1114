@@ -11,6 +11,7 @@ const links = [
   ["PROJECTS", "/projects"],
   ["STUDIO", "/studio"],
   ["PRESS", "/press"],
+  ["JOURNAL", "/journal"],
   ["CONTACT", "/contact"],
 ];
 type MenuProject = { title: string; href: string };
@@ -43,7 +44,7 @@ export function Navigation({ projects }: { projects: MenuProject[] }) {
     });
   }
   function warmMenu() {
-    // Warm four primary routes; project details are warmed only on intent.
+    // Warm primary routes; project details are warmed only on intent.
     for (const [, href] of links) warm(href);
   }
   function openMenu() {

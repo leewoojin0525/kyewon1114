@@ -6,6 +6,7 @@ import { ProjectSlideshow } from "./project-slideshow";
 import { Prose } from "./prose";
 import { mediaInfo, type MediaInfo } from "@/lib/media";
 import { imagesIn, type Content, type Publication } from "@/lib/model";
+import { isJournalEntry, publicContentPath } from "@/lib/editorial-section";
 export function SectionTitle({
   number,
   title,
@@ -83,9 +84,7 @@ export async function ProjectCard({
     <article
       className={`project-card ${doc.kind === "projects" ? "project-tile" : "press-card"}`}
     >
-      <Link
-        href={`/${doc.kind === "journal" ? "press" : "projects"}/${d.slug}`}
-      >
+      <Link href={publicContentPath(doc)}>
         {cover && (
           <PhotoImage
             photo={cover}
@@ -213,6 +212,7 @@ export async function Detail({
   doc: Publication;
   preview?: boolean;
 }) {
+  if (isJournalEntry(doc)) return <JournalDetail doc={doc} preview={preview} />;
   const d = doc.data;
   const photos = imagesIn(d);
   const slideshow = doc.kind === "projects";
@@ -321,6 +321,111 @@ export async function Detail({
               <DiagonalArrow />
             </span>
           </Link>
+        </div>
+      </article>
+    </GallerySurface>
+  );
+}
+
+export async function JournalCards({
+  documents,
+}: {
+  documents: Publication[];
+}) {
+  const media = await mediaInfo(
+    documents.flatMap((doc) => (doc.data.hero ? [doc.data.hero.id] : [])),
+  );
+  const preloaded = new Map(media.map((item) => [item.id, item]));
+  return (
+    <div className="observation-grid">
+      {documents.map((doc, index) => (
+        <article className="observation-card" key={doc.id} data-reveal>
+          <Link href={publicContentPath(doc)}>
+            {doc.data.hero && (
+              <PhotoImage
+                photo={doc.data.hero}
+                preloaded={preloaded}
+                priority={index < 2}
+                sizes="(max-width:767px) 100vw, 50vw"
+                className="observation-cover"
+              />
+            )}
+            <h2>{doc.data.title}</h2>
+            <p>{doc.data.summary}</p>
+          </Link>
+        </article>
+      ))}
+    </div>
+  );
+}
+
+async function JournalDetail({
+  doc,
+  preview,
+}: {
+  doc: Publication;
+  preview: boolean;
+}) {
+  const d = doc.data;
+  const photos = imagesIn(d);
+  const media = await mediaInfo(photos.map((photo) => photo.id));
+  const preloaded = new Map(media.map((item) => [item.id, item]));
+  const items = photos.flatMap((photo) => {
+    const m = preloaded.get(photo.id),
+      derivative = m?.derivatives.at(-1);
+    return m && derivative
+      ? [
+          {
+            ...photo,
+            src: `/media/${derivative.key}`,
+            width: m.width,
+            height: m.height,
+          },
+        ]
+      : [];
+  });
+  return (
+    <GallerySurface items={items}>
+      <article className="wrap observation-detail">
+        {preview && (
+          <div className="notice">
+            Private draft preview · Not publicly visible.
+          </div>
+        )}
+        <Link href="/journal" className="eyebrow">
+          ← JOURNAL
+        </Link>
+        <div className="observation-layout">
+          {d.hero && (
+            <figure className="observation-photo">
+              <PhotoImage
+                photo={d.hero}
+                preloaded={preloaded}
+                priority
+                sizes="(max-width:767px) 100vw, 58vw"
+              />
+              {d.hero.caption && <figcaption>{d.hero.caption}</figcaption>}
+            </figure>
+          )}
+          <div className="observation-writing" data-reveal>
+            <h1>{d.title}</h1>
+            {d.author && <p className="observation-author">{d.author}</p>}
+            {d.blocks.length ? (
+              <BodyBlocks data={d} preloaded={preloaded} />
+            ) : (
+              <Prose body={d.summary} />
+            )}
+            {d.sourceUrl && (
+              <a
+                href={d.sourceUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="text-link observation-source"
+              >
+                Original on Instagram <DiagonalArrow />
+              </a>
+            )}
+          </div>
         </div>
       </article>
     </GallerySurface>
