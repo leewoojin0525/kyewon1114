@@ -1,0 +1,378 @@
+.page {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 24px 20px 110px;
+  font-family: Inter, "Noto Sans KR", sans-serif;
+  line-height: 1.6;
+  color: #282c29;
+}
+.header {
+  padding: 8px 0 22px;
+}
+.header > a {
+  display: inline-block;
+  margin-bottom: 22px;
+}
+.header h1 {
+  font-size: 24px;
+  font-weight: 500;
+  margin-bottom: 10px;
+}
+.header p {
+  font-size: 15px;
+}
+.header .hint {
+  margin-top: 10px;
+  font-size: 12px;
+  color: #687067;
+}
+.toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: rgba(255, 255, 255, 0.97);
+  padding: 10px 0;
+  border-bottom: 1px solid #e8ebe6;
+}
+.tabs {
+  display: flex;
+  gap: 8px;
+}
+.tabs button {
+  flex: 1;
+  border: 1px solid #dce2db;
+  border-radius: 7px;
+  padding: 10px;
+  font-size: 15px;
+  min-height: 46px;
+}
+.tabs button[aria-pressed="true"] {
+  color: #fff;
+  background: #355a45;
+  border-color: #355a45;
+}
+.tabs b {
+  margin-left: 6px;
+  font-weight: 500;
+}
+.filters {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+.filters select,
+.filters input {
+  min-width: 0;
+  min-height: 44px;
+  border: 1px solid #dce2db;
+  border-radius: 5px;
+  padding: 9px;
+  font-size: 16px;
+  background: white;
+}
+.filters select {
+  width: 52%;
+}
+.filters input {
+  width: 48%;
+}
+.status {
+  font-size: 13px;
+  color: #355a45;
+  min-height: 42px;
+  padding: 12px 0;
+  overflow-wrap: anywhere;
+}
+.total {
+  font-size: 12px;
+  color: #6a716c;
+  margin: 2px 0 14px;
+}
+.photoGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+.card {
+  border: 1px solid #e1e6e0;
+  border-radius: 8px;
+  overflow: hidden;
+  min-width: 0;
+  background: white;
+}
+.card[data-selected="true"] {
+  border-color: #355a45;
+}
+.imageButton {
+  display: block;
+  width: 100%;
+  padding: 0;
+  position: relative;
+  background: #f3f3ef;
+}
+.imageButton img {
+  aspect-ratio: 3/2;
+  object-fit: contain;
+  width: 100%;
+  height: auto;
+}
+.rank {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  border-radius: 4px;
+  background: #355a45;
+  color: white;
+  padding: 4px 7px;
+  font-size: 12px;
+}
+.cardBody {
+  padding: 10px;
+  min-width: 0;
+}
+.cardBody h2 {
+  font-size: 14px;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+.cardBody p {
+  font-size: 10px;
+  min-height: 32px;
+  line-height: 1.4;
+  color: #727872;
+  margin: 4px 0 8px;
+  overflow-wrap: anywhere;
+}
+.selectButton {
+  width: 100%;
+  min-height: 44px;
+  border-radius: 5px;
+  background: #eef2ec;
+  border: 1px solid #cfdacf;
+  color: #355a45;
+  font-size: 14px;
+  padding: 8px;
+}
+.selectButton[aria-pressed="true"] {
+  background: #355a45;
+  color: white;
+}
+.selectionTools {
+  margin: 0 0 18px;
+  font-size: 13px;
+}
+.selectionTools > div {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+.selectionTools button {
+  min-height: 44px;
+  border: 1px solid #dce2db;
+  padding: 8px 12px;
+  border-radius: 5px;
+  font-size: 13px;
+}
+.selectedGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+.orderButtons {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+.orderButtons button {
+  flex: 1;
+  border: 1px solid #dce2db;
+  min-height: 44px;
+  border-radius: 5px;
+  font-size: 12px;
+}
+.page button:disabled {
+  cursor: default;
+}
+.empty {
+  padding: 40px 0;
+  text-align: center;
+  color: #687067;
+}
+.note {
+  display: block;
+  margin-top: 28px;
+  font-size: 14px;
+}
+.note textarea,
+.result textarea {
+  display: block;
+  width: 100%;
+  font-size: 16px;
+  line-height: 1.7;
+  padding: 12px;
+  border: 1px solid #cfdacf;
+  border-radius: 5px;
+  resize: vertical;
+  margin-top: 8px;
+}
+.bottom {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  background: #fff;
+  border-top: 1px solid #e1e6e0;
+  padding: 12px 20px max(12px, env(safe-area-inset-bottom));
+}
+.bottom > span {
+  font-size: 14px;
+  white-space: nowrap;
+}
+.bottom b {
+  font-size: 19px;
+  color: #355a45;
+}
+.bottom button {
+  background: #355a45;
+  color: white;
+  border-radius: 6px;
+  min-height: 48px;
+  max-width: 420px;
+  padding: 12px 24px;
+  font-size: 15px;
+}
+.result {
+  border: 1px solid #b8cab8;
+  border-radius: 8px;
+  background: #f5f7f2;
+  padding: 18px;
+  margin-bottom: 20px;
+  scroll-margin-top: 140px;
+}
+.result h2 {
+  font-size: 19px;
+  font-weight: 500;
+}
+.result p {
+  font-size: 13px;
+  margin-top: 8px;
+}
+.resultActions {
+  display: flex;
+  gap: 8px;
+  margin: 12px 0;
+}
+.resultActions button {
+  flex: 1;
+  border-radius: 5px;
+  min-height: 46px;
+  background: #355a45;
+  color: white;
+  font-size: 14px;
+  padding: 8px;
+}
+.zoom {
+  border: 0;
+  border-radius: 8px;
+  padding: 14px;
+  width: min(96vw, 1100px);
+  max-height: 92dvh;
+  overflow: auto;
+}
+.zoom::backdrop {
+  background: rgba(0, 0, 0, 0.8);
+}
+.zoomHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+.zoomHeader button {
+  min-width: 60px;
+  min-height: 44px;
+}
+.zoom > img {
+  max-height: 70dvh;
+  width: 100%;
+  object-fit: contain;
+}
+.zoom > .selectButton {
+  margin-top: 12px;
+}
+.zoom > p {
+  font-size: 12px;
+  color: #355a45;
+  margin-top: 8px;
+}
+@media (max-width: 760px) {
+  .page {
+    padding: 18px 14px 110px;
+  }
+  .header h1 {
+    font-size: 22px;
+  }
+  .header p {
+    font-size: 14px;
+  }
+  .photoGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .selectedGrid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .selectedGrid .card {
+    display: grid;
+    grid-template-columns: 43% minmax(0, 1fr);
+  }
+  .selectedGrid .imageButton {
+    height: 100%;
+  }
+  .selectedGrid .imageButton img {
+    height: 100%;
+    max-height: 200px;
+    object-fit: contain;
+  }
+  .selectedGrid .cardBody {
+    padding: 9px;
+  }
+  .selectedGrid .cardBody p {
+    min-height: 0;
+    font-size: 10px;
+    margin-bottom: 6px;
+  }
+  .cardBody {
+    padding: 8px;
+  }
+  .cardBody h2 {
+    font-size: 13px;
+  }
+  .selectButton {
+    font-size: 13px;
+  }
+  .bottom {
+    gap: 16px;
+  }
+  .bottom button {
+    flex: 1;
+    padding: 12px;
+    font-size: 14px;
+  }
+  .orderButtons {
+    gap: 5px;
+  }
+  .orderButtons button {
+    font-size: 11px;
+    padding: 4px;
+  }
+}

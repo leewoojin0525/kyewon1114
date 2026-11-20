@@ -1,7 +1,12 @@
 import { existsSync } from "node:fs";
 import { withPayload } from "@payloadcms/next/withPayload";
-if (process.env.VERCEL_ENV === "production" && !existsSync(".site-media/manifest.json")) {
-  throw new Error("Private deployment photo bundle is missing. Run the verified media preparation before deploying.");
+if (
+  process.env.VERCEL_ENV === "production" &&
+  !existsSync(".site-media/manifest.json")
+) {
+  throw new Error(
+    "Private deployment photo bundle is missing. Run the verified media preparation before deploying.",
+  );
 }
 export default withPayload({
   output: "standalone",
@@ -24,7 +29,12 @@ export default withPayload({
           },
         ],
       },
-      ...["/admin/:path*", "/preview/:path*", "/api/:path*"].map((source) => ({
+      ...[
+        "/admin/:path*",
+        "/preview/:path*",
+        "/api/:path*",
+        "/review/:path*",
+      ].map((source) => ({
         source,
         headers: [
           { key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" },

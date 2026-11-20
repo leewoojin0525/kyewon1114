@@ -7,7 +7,7 @@ export default function robots() {
           {
             userAgent: "*",
             allow: "/",
-            disallow: ["/admin", "/cms", "/preview", "/api"],
+            disallow: ["/admin", "/cms", "/preview", "/api", "/review"],
           },
         ]
       : [{ userAgent: "*", disallow: "/" }],

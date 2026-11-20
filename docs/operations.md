@@ -148,3 +148,19 @@ The private delivery manifest and verification evidence are in
 `.data/copy-review-20261120/`. Update the existing Drive HTML file recorded there
 when issuing a later edition, preserving its link in the native Start document.
 Never put this private review or its editable bilingual source under `public/`.
+
+### Mobile homepage photo selection
+
+`/review/home` is an HTTPS, read-only picker for currently published project
+photographs. Its server projection includes only public photograph details and
+stable review references from `src/data/photo-review-references.json`. It does
+not expose the private review catalog, deleted photographs, originals, draft
+history, or operational settings. All image requests retain the normal current
+publication access check. The route is noindex and private/no-store.
+
+Selection, ordering, and notes are saved only in that browser. The user copies
+or shares a text request; there is no publication endpoint on this page. Apply
+requests only after checking their expected settings version and referenced
+project versions through the normal Owner workflow. Keep stable photo reference
+numbers when updating the reference map for new published media. The existing
+private desktop review remains the source for deletion history and originals.
