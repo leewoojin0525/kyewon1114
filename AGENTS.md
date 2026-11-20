@@ -129,3 +129,9 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - The private project photo review list also selects up to eight specific homepage photographs, starting with the currently published selection. Homepage ordering is independent of project gallery order and covers.
 - Keep homepage selection and order in the browser and include the complete ordered references in the existing photo-change request download. This never publishes directly. Preserve existing project edits and deleted-photo history; a deleted photo requires an explicit restoration request before it can be selected for the homepage.
 - Before regenerating the review HTML, export published selections with `scripts/export-photo-review-home.ts --production` to `.data/current-home-selection.json`; never expose operational settings or private originals in the review file.
+
+## Anywhere editing principle — 2026-11-20
+
+- The user's preferred workflow is continuous improvement from any location on mobile or PC. Keep stable HTTPS review links for photographs and bilingual copy, reachable from the single Google Drive Start document under 97. Core review tasks must not require a local file path or downloading desktop HTML.
+- Keep the review flow simple: view photographs or text, select/order/edit or leave a note, and send a change request. Apply reviewed requests through the existing Owner/expected-version workflow; update affected website content, catalogs and Drive reference documents together, preserving source originals and change history.
+- Clearly distinguish access from synchronization: `/review/home` and `/review/copy` are accessible across devices, but unfinished edits currently persist only in the browser where they were entered. Do not describe them as cloud-synced or automatically published. Any future cross-device draft storage must use authenticated, authorized access and retain the reviewed publication boundary.

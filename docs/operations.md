@@ -188,3 +188,19 @@ Changed or withdrawn publications are flagged without silently rebasing edits.
 Exported requests include stable IDs and old/current versions. Apply them only
 after review through the existing Owner/version-checked publication workflow;
 they never authorize arbitrary changes to operational settings.
+
+### Anywhere editing principle
+
+The user confirmed on 2026-11-20 that mobile and PC access through one persistent
+entry point is the standard workflow for ongoing improvements. Keep the Google
+Drive Start document under 97 current, linking `/review/home` for photographs and
+`/review/copy` for bilingual text. Core review tasks should open directly over
+HTTPS without downloading a desktop HTML file. After applying a reviewed change,
+update the affected website, review lists and Drive reference documents while
+preserving source originals and prior history.
+
+Access from any device does not yet mean draft synchronization: unfinished
+selections and copy edits stay in the originating browser. Explain this
+distinction accurately. Cross-device continuation remains a separate future
+capability requiring authenticated draft storage; it must not bypass Owner
+authorization or expected-version checks at publication.
