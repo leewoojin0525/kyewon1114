@@ -8,9 +8,20 @@ if (
     "Private deployment photo bundle is missing. Run the verified media preparation before deploying.",
   );
 }
+if (
+  process.env.VERCEL_ENV === "production" &&
+  !existsSync(".site-copy/review.json")
+) {
+  throw new Error(
+    "Verified bilingual review copy is missing. Run the mobile copy preparation before deploying.",
+  );
+}
 export default withPayload({
   output: "standalone",
-  outputFileTracingIncludes: { "/media/**": ["./.site-media/**/*"] },
+  outputFileTracingIncludes: {
+    "/media/**": ["./.site-media/**/*"],
+    "/review/copy": ["./.site-copy/review.json"],
+  },
   poweredByHeader: false,
   devIndicators: false,
   serverExternalPackages: ["pg", "sharp", "@aws-sdk/client-s3"],

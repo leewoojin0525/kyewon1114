@@ -186,6 +186,19 @@ export function HomePhotoPicker({
           선택은 이 브라우저에 저장됩니다. 홈페이지 반영은 요청을 확인한 뒤
           진행합니다.
         </p>
+        <a
+          href="/review/copy"
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            minHeight: 44,
+            color: "#405c49",
+            textDecoration: "underline",
+            fontSize: 14,
+          }}
+        >
+          글 읽기·수정 요청 →
+        </a>
       </header>
       <div className={styles.toolbar}>
         <div className={styles.tabs} role="group" aria-label="사진 보기 방식">

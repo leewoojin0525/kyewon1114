@@ -164,3 +164,27 @@ requests only after checking their expected settings version and referenced
 project versions through the normal Owner workflow. Keep stable photo reference
 numbers when updating the reference map for new published media. The existing
 private desktop review remains the source for deletion history and originals.
+
+### Mobile bilingual copy review
+
+`/review/copy` reads current public project and Studio snapshots. It lets the
+user read Korean/English copy, edit wording, leave notes, and export a request
+without downloading HTML. Changes live only in browser local storage; the page
+has no database write or publication endpoint. The photo and copy review pages
+link to one another and remain outside public navigation, with noindex and
+private/no-store headers.
+
+Before deployment, run `scripts/export-copy-review-baseline.ts --production`,
+then `scripts/prepare-mobile-copy.ts`. The latter creates the private server
+bundle `.site-copy/review.json`, traced only into `/review/copy` and excluded from
+Git. It selects only Korean copy and matching English strings from the reviewed
+bilingual sources. It excludes private evidence, sources, account information,
+review history and user edits. Never serve the offline review HTML or complete
+private source files. At request time, translations are shown only when their
+English counterparts match current publications; withdrawn projects are omitted.
+
+Saved edits keep their original text, source hash and expected public version.
+Changed or withdrawn publications are flagged without silently rebasing edits.
+Exported requests include stable IDs and old/current versions. Apply them only
+after review through the existing Owner/version-checked publication workflow;
+they never authorize arbitrary changes to operational settings.

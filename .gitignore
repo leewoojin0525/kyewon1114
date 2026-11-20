@@ -23,3 +23,4 @@ docs/*
 
 # Private deployment derivatives are shipped via the authenticated CLI only.
 .site-media/
+.site-copy/
