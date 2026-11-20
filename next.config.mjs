@@ -16,11 +16,21 @@ if (
     "Verified bilingual review copy is missing. Run the mobile copy preparation before deploying.",
   );
 }
+if (
+  process.env.VERCEL_ENV === "production" &&
+  !existsSync(".site-review/catalog.json")
+) {
+  throw new Error(
+    "Photo review catalogue is missing. Run scripts/prepare-photo-review.ts before deployment.",
+  );
+}
 export default withPayload({
   output: "standalone",
   outputFileTracingIncludes: {
     "/media/**": ["./.site-media/**/*"],
     "/review/copy": ["./.site-copy/review.json"],
+    "/review/photos": ["./.site-review/catalog.json"],
+    "/api/review/photos/**": ["./.site-review/**/*"],
   },
   poweredByHeader: false,
   devIndicators: false,

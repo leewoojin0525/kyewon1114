@@ -2,7 +2,9 @@ import "../src/lib/env";
 import { before, after, test } from "node:test";
 import assert from "node:assert/strict";
 import { randomBytes, randomUUID, createHash } from "node:crypto";
-import { readFile } from "node:fs/promises";
+import { readFile, mkdtemp, mkdir, writeFile, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import pg from "pg";
 import sharp from "sharp";
 let db: typeof import("../src/lib/db"),
@@ -22,6 +24,64 @@ const dbName = `wovn_test_${Date.now()}`,
   admin = new pg.Pool({ connectionString: process.env.DATABASE_URL }),
   base = "http://127.0.0.1:3000";
 const password = randomBytes(24).toString("hex");
+test("deleted catalogue previews require a live Owner session and never serve originals or cache private images", async () => {
+  const privateRoute = await import(
+    "../src/app/api/review/photos/[reference]/route"
+  );
+  const root = await mkdtemp(join(tmpdir(), "wovn-private-review-"));
+  const previous = process.env.PHOTO_REVIEW_DIRECTORY;
+  process.env.PHOTO_REVIEW_DIRECTORY = root;
+  try {
+    await mkdir(join(root, "thumbs"));
+    const bytes = await sharp({
+      create: { width: 2, height: 2, channels: 3, background: "white" },
+    })
+      .webp()
+      .toBuffer();
+    await writeFile(join(root, "thumbs", "Private-001.webp"), bytes);
+    await writeFile(
+      join(root, "catalog.json"),
+      JSON.stringify({
+        schemaVersion: 1,
+        photos: [{ reference: "Private-001", thumbnail: true }],
+      }),
+    );
+    const get = (reference: string, cookie = "") =>
+      privateRoute.GET(
+        new Request(`${base}/api/review/photos/${reference}`, {
+          headers: {
+            "Sec-Fetch-Site": "same-origin",
+            ...(cookie ? { Cookie: cookie } : {}),
+          },
+        }),
+        { params: Promise.resolve({ reference }) },
+      );
+    assert.equal((await get("Private-001")).status, 404);
+    assert.equal((await get("Private-001", editorCookie)).status, 404);
+    const authenticated = await (
+      await import("../src/lib/auth")
+    ).authenticate(
+      new Headers({ Cookie: ownerCookie, "Sec-Fetch-Site": "same-origin" }),
+    );
+    assert.equal(authenticated.role, "owner");
+    const stored = await (
+      await import("../src/lib/photo-review-catalog")
+    ).privateReviewThumbnail("Private-001");
+    assert.deepEqual(stored, bytes);
+    const response = await get("Private-001", ownerCookie);
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get("Cache-Control"), "private, no-store");
+    assert.equal(response.headers.get("Content-Type"), "image/webp");
+    assert.deepEqual(Buffer.from(await response.arrayBuffer()), bytes);
+    assert.equal((await get("../catalog.json", ownerCookie)).status, 404);
+    assert.equal((await get("original", ownerCookie)).status, 404);
+    assert.equal((await get("Unknown-001", ownerCookie)).status, 404);
+  } finally {
+    if (previous === undefined) delete process.env.PHOTO_REVIEW_DIRECTORY;
+    else process.env.PHOTO_REVIEW_DIRECTORY = previous;
+    await rm(root, { recursive: true, force: true });
+  }
+});
 test("direct uploads require authentication, same origin, and an actor-owned path", async () => {
   const { uploadPathBelongsTo } = await import("../src/lib/direct-upload");
   const id = randomUUID();

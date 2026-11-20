@@ -157,8 +157,8 @@ export function CopyReview({ records }: { records: CopyRecord[] }) {
           수정 내용은 이 브라우저에 저장됩니다. 요청을 보내주시면 확인한 뒤
           홈페이지에 반영합니다.
         </p>
-        <a className={styles.photoLink} href="/review/home">
-          메인 사진 고르기 →
+        <a className={styles.photoLink} href="/review/photos">
+          프로젝트 사진목록 · 메인 사진 선택
         </a>
       </header>
       <div className={styles.toolbar}>

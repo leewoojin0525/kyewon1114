@@ -139,3 +139,9 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 ## Selected homepage photographs — 2026-11-20
 
 - The user's mobile request replaces the recommended TOP 8 with this exact homepage order: KyoboD-031, P-house-001, Samjeon-020, Tied-009, AlmostHome-021, Soyo-016, Seed-001, Consilience-010. Applied through reviewed settings version 8. Preserve all project gallery orders and covers; this request changes only the homepage slideshow.
+
+## Unified photo review — 2026-11-20
+
+- `/review/photos` is the canonical phone/tablet/desktop project photo catalogue, with project ordering, removal/restoration requests, notes and homepage selection. `/review/home` redirects to its homepage tab and preserves the previous browser selection key. Do not recommend Google Drive's HTML preview for interactive editing.
+- Only current public photographs are shown without authentication. Deleted review photographs and their thumbnail endpoint require active Owner authentication on the server. They are never included in anonymous HTML or public assets. Generate `.site-review` with `scripts/prepare-photo-review.ts`; ship its sanitized index and private preview derivatives, never original paths or source files.
+- Review actions create requests only. Preserve their reviewed publication versions and stable references. Browser drafts are not cloud-synced; the same page supports an explicit JSON export/import to continue on another device.
