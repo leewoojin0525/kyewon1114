@@ -113,3 +113,9 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Prefetch only primary navigation and links with user intent. Deduplicate server reads per render, batch card metadata, and paginate Press on the server. Never persistently cache media authorization. Reduced-motion users must retain complete content without animation.
 - Existing reviewed public Studio copy may be revised through Owner/version-checked publication while preserving every operational setting exactly. This must not enable or weaken an unconfigured inquiry or mail service. Initial settings publication still requires the operational checks.
 - Keep the Google Drive editing hub under 97, with a single Start document linking editable native Google Docs, bilingual PDFs, photo candidates, the existing photo review list and the Press preservation archive. Google Docs edits require a separate reviewed application to the website; they do not publish automatically.
+
+## Typography follow-up, 2026-11-20
+
+- The approved WOVN logo is the strongest typographic element. Main overlay navigation is now 20px on desktop and 18px on mobile, with 2px / 1.5px tracking and compact rows retaining at least 44px hit areas.
+- Reduce letter spacing throughout the public site, especially uppercase labels, titles and menu text. Keep the logo artwork unchanged and preserve Korean administration typography.
+- Studio should feel composed rather than empty: reduce excessive space between the introduction and philosophy sections. Present the complete Korean Studio copy to the user; the public site continues using its English counterpart.

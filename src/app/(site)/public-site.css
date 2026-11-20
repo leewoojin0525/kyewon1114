@@ -7,7 +7,7 @@
   font-size: 12px;
   font-weight: 400;
   line-height: 1.75;
-  letter-spacing: 0.035em;
+  letter-spacing: 0.01em;
   -webkit-font-smoothing: antialiased;
 }
 .public-site button,
@@ -27,13 +27,13 @@
 .public-site .section-heading > a {
   font-size: 10px;
   font-weight: 400;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.07em;
   line-height: 1.6;
 }
 .public-site .section-heading h2 {
   font-size: 11px;
   font-weight: 400;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.07em;
 }
 .public-site .section-heading h2 span {
   margin-right: 22px;
@@ -47,7 +47,7 @@
 .public-site .page-title h1,
 .public-site .detail h1 {
   font-size: 11px;
-  letter-spacing: 0.045em;
+  letter-spacing: 0.015em;
 }
 .public-site .studio-opening > h1,
 .public-site .contact-intro h1,
@@ -55,17 +55,22 @@
 .public-site .studio-about h2,
 .public-site .studio-statement h2 {
   font-family: "adobe-caslon-pro", "Cormorant Garamond", Georgia, serif;
-  font-size: clamp(21px, 2.3vw, 31px);
+  font-size: 20px;
   font-weight: 400;
   line-height: 1.35;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.015em;
 }
 .public-site .studio-opening > h1 {
-  font-size: 30px;
-  letter-spacing: 0.23em;
+  font-size: 22px;
+  letter-spacing: 0.08em;
+  margin: 22px 0 30px;
 }
 .public-site .studio-opening {
-  padding-block: 55px 90px;
+  padding-block: 40px 32px;
+}
+.public-site .studio-statement {
+  gap: 28px;
+  padding-top: 24px;
 }
 .public-site .studio-teaser {
   background: var(--public-paper);
@@ -79,19 +84,19 @@
 .public-site .contact-intro > p {
   font-size: 12px;
   line-height: 1.85;
-  letter-spacing: 0.035em;
+  letter-spacing: 0.01em;
   max-width: 58ch;
 }
 .public-site .service-list h3,
 .public-site .process-list h3,
 .public-site .detail-cta h2 {
   font-size: 13px;
-  letter-spacing: 0.035em;
+  letter-spacing: 0.01em;
 }
 .public-site .footer-slogan {
   font-family: "adobe-caslon-pro", "Cormorant Garamond", Georgia, serif;
-  font-size: 24px;
-  letter-spacing: 0.15em;
+  font-size: 20px;
+  letter-spacing: 0.06em;
   line-height: 1.2;
 }
 .public-site .footer-top > div > p {
@@ -103,7 +108,7 @@
 }
 .public-site .email-link {
   font-size: 15px;
-  letter-spacing: 0.035em;
+  letter-spacing: 0.01em;
 }
 .public-site .contact-form label,
 .public-site .contact-form legend {
@@ -152,7 +157,7 @@
   color: inherit;
   font-size: 12px;
   font-weight: 400;
-  letter-spacing: 0.17em;
+  letter-spacing: 0.08em;
   cursor: pointer;
 }
 .public-site .menu-toggle span {
@@ -209,18 +214,19 @@
   flex-direction: column;
   align-items: stretch;
   margin: 0;
-  width: min(440px, 100%);
-  padding-block: 40px;
+  width: min(360px, 100%);
+  padding-block: 24px;
 }
 .public-site .menu-panel .menu-primary-link {
   display: flex;
   align-items: center;
-  gap: 18px;
-  padding: 16px 0;
+  gap: 14px;
+  min-height: 44px;
+  padding: 10px 0;
   font-family: "adobe-caslon-pro", "Cormorant Garamond", Georgia, serif;
-  font-size: 30px;
-  line-height: 50px;
-  letter-spacing: 5px;
+  font-size: 20px;
+  line-height: 32px;
+  letter-spacing: 2px;
   font-weight: 400;
   border-bottom: 0;
   border-top: 0;
@@ -236,7 +242,7 @@
 }
 .public-site .menu-number {
   font-size: 9px;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.02em;
   color: #777;
 }
 .public-site .menu-link-arrow {
@@ -308,7 +314,7 @@
   gap: 12px;
   margin-bottom: 20px;
   font-size: 10px;
-  letter-spacing: 0.13em;
+  letter-spacing: 0.05em;
 }
 .public-site .menu-back {
   color: inherit;
@@ -317,7 +323,7 @@
   min-height: 44px;
   padding: 0;
   font-size: 10px;
-  letter-spacing: 0.13em;
+  letter-spacing: 0.05em;
   cursor: pointer;
 }
 .public-site .menu-panel .menu-project-list {
@@ -328,7 +334,7 @@
 }
 .public-site .menu-project-list a {
   font-size: 11px;
-  letter-spacing: 0.035em;
+  letter-spacing: 0.01em;
   line-height: 1.6;
   min-height: 44px;
   padding: 12px 0;
@@ -346,7 +352,7 @@
   z-index: 1;
   min-height: 18px;
   font-size: 10px;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.04em;
   text-align: center;
   margin: 0 0 22px;
 }
@@ -355,7 +361,7 @@
 }
 .public-site .menu-panel-note {
   font-size: 10px;
-  letter-spacing: 0.25em;
+  letter-spacing: 0.08em;
   text-align: center;
   margin-bottom: 34px;
 }
@@ -404,7 +410,7 @@
 .public-site .hero-kicker {
   font-family: "adobe-caslon-pro", "Cormorant Garamond", Georgia, serif;
   font-size: 13px;
-  letter-spacing: 0.42em;
+  letter-spacing: 0.14em;
   line-height: 1.4;
   margin: 0 0 20px;
 }
@@ -412,7 +418,7 @@
   font-family: "adobe-caslon-pro", "Cormorant Garamond", Georgia, serif;
   font-size: 11px;
   line-height: 1.6;
-  letter-spacing: 0.045em;
+  letter-spacing: 0.015em;
   margin: 0;
 }
 .public-site .home-hero-caption h1 span {
@@ -448,13 +454,13 @@
 }
 .public-site .hero-count {
   font-size: 10px;
-  letter-spacing: 0.13em;
+  letter-spacing: 0.05em;
   font-variant-numeric: tabular-nums;
   padding-inline: 8px;
 }
 .public-site .hero-controls .hero-play {
   font-size: 9px;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.04em;
   margin-left: 12px;
 }
 .public-site .hero-progress {
@@ -488,7 +494,7 @@
 .public-site .project-tile .card-info h3 {
   font-size: 11px;
   line-height: 1.5;
-  letter-spacing: 0.025em;
+  letter-spacing: 0.01em;
 }
 .public-site .project-tile .card-info {
   padding: 60px 13px 11px;
@@ -510,7 +516,7 @@
 }
 .public-site .press-card .card-info h3 {
   font-size: 11px;
-  letter-spacing: 0.025em;
+  letter-spacing: 0.01em;
 }
 .public-site .project-spread {
   padding-top: 8px;
@@ -569,7 +575,7 @@
 .public-site .project-slide-count {
   font-size: 10px;
   margin: 15px 0 0;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.06em;
 }
 .public-site .project-spread .detail-cta {
   padding-block: 38px;
@@ -654,7 +660,7 @@
   }
   .public-site .hero-kicker {
     font-size: 12px;
-    letter-spacing: 0.32em;
+    letter-spacing: 0.1em;
     margin-bottom: 13px;
   }
   .public-site .hero-controls {
@@ -669,14 +675,14 @@
   }
   .public-site .section-heading h2 {
     font-size: 10px;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.04em;
   }
   .public-site .section-heading h2 span {
     margin-right: 16px;
   }
   .public-site .section-heading > a {
     font-size: 9px;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.03em;
     white-space: nowrap;
   }
   .public-site .project-tile .card-info {
@@ -686,7 +692,11 @@
     padding-block: 60px;
   }
   .public-site .studio-opening {
-    padding-block: 40px 60px;
+    padding-block: 28px 24px;
+  }
+  .public-site .studio-statement {
+    gap: 18px;
+    padding-top: 18px;
   }
   .public-site .project-slide-image {
     height: calc(100svh - 205px);
@@ -709,9 +719,10 @@
     max-width: 340px;
   }
   .public-site .menu-panel .menu-primary-link {
-    padding-block: 13px;
-    font-size: 24px;
-    letter-spacing: 5px;
+    padding-block: 10px;
+    font-size: 18px;
+    line-height: 28px;
+    letter-spacing: 1.5px;
   }
   .public-site .menu-projects-open .menu-primary {
     display: none;
@@ -757,9 +768,9 @@
 .public-site .project-description h2,
 .public-site .studio-narrative h2 {
   font-family: "adobe-caslon-pro", "Cormorant Garamond", Georgia, serif;
-  font-size: 22px;
+  font-size: 20px;
   line-height: 1.5;
-  letter-spacing: 0.055em;
+  letter-spacing: 0.02em;
   margin-bottom: 22px;
 }
 .public-site .project-description .prose,
@@ -767,13 +778,13 @@
 .public-site .studio-narrative p {
   font-size: 14px;
   line-height: 1.95;
-  letter-spacing: 0.025em;
+  letter-spacing: 0.01em;
 }
 .public-site .studio-narrative {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 64px 10%;
-  padding-block: 70px 100px;
+  gap: 40px 8%;
+  padding-block: 28px 64px;
 }
 .public-site .studio-narrative section {
   max-width: 58ch;
@@ -785,7 +796,7 @@
   gap: 20px;
   padding: 32px 0 12px;
   font-size: 12px;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.03em;
 }
 .public-site .press-pagination a,
 .public-site .press-pagination > span {
@@ -852,8 +863,8 @@
 @media (max-width: 767px) {
   .public-site .studio-narrative {
     grid-template-columns: 1fr;
-    gap: 36px;
-    padding-block: 30px 65px;
+    gap: 30px;
+    padding-block: 18px 48px;
   }
   .public-site .press-card .card-image img {
     padding: 10px;
