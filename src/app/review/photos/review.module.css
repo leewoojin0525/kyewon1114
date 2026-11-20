@@ -45,10 +45,21 @@
   gap: 8px;
   padding-bottom: 22px;
 }
-.header > a {
+.header > a,
+.headerLinks a {
   font-size: 14px;
   text-decoration: underline;
   text-underline-offset: 4px;
+}
+.headerLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+}
+.headerLinks a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
 }
 .header img {
   object-fit: contain;

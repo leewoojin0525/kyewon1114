@@ -8,6 +8,8 @@ import {
   copyReviewRequest,
   newCopyEdit,
   restoreCopyDraft,
+  exportCopyReview,
+  importCopyReview,
   type CopyDraft,
   type CopyEdit,
   type CopyField,
@@ -17,13 +19,19 @@ import styles from "./review.module.css";
 
 const STORAGE_KEY = "wovn-mobile-copy-review-v1";
 
-export function CopyReview({ records }: { records: CopyRecord[] }) {
+export function CopyReview({
+  records,
+  initialKind = "all",
+}: {
+  records: CopyRecord[];
+  initialKind?: "all" | "project" | "studio" | "journal";
+}) {
   const [draft, setDraft] = useState<CopyDraft>({
     schemaVersion: 1,
     edits: [],
   });
   const [ready, setReady] = useState(false);
-  const [kind, setKind] = useState("all");
+  const [kind, setKind] = useState<string>(initialKind);
   const [language, setLanguage] = useState("ko");
   const [query, setQuery] = useState("");
   const [changedOnly, setChangedOnly] = useState(false);
@@ -33,6 +41,8 @@ export function CopyReview({ records }: { records: CopyRecord[] }) {
   const [undo, setUndo] = useState<CopyEdit | null>(null);
   const resultSection = useRef<HTMLElement>(null);
   const resultBox = useRef<HTMLTextAreaElement>(null);
+  const transferInput = useRef<HTMLInputElement>(null);
+  const draftRef = useRef(draft);
   const edits = new Map(draft.edits.map((edit) => [edit.id, edit]));
   const current = new Map(records.map((record) => [record.id, record]));
   const orphanCount = draft.edits.filter(
@@ -65,6 +75,7 @@ export function CopyReview({ records }: { records: CopyRecord[] }) {
     setReady(true);
   }, []);
   useEffect(() => {
+    draftRef.current = draft;
     if (!ready) return;
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(draft));
@@ -136,6 +147,43 @@ export function CopyReview({ records }: { records: CopyRecord[] }) {
     }
   }
 
+  function download(
+    text: string,
+    name: string,
+    type = "text/plain;charset=utf-8",
+  ) {
+    const url = URL.createObjectURL(new Blob([text], { type }));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = name;
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  async function loadTransfer(file?: File) {
+    if (!file || !ready) return;
+    try {
+      if (file.size > 8_000_000)
+        throw new Error("이어하기 파일이 너무 큽니다.");
+      const raw = await file.text();
+      const imported = importCopyReview(raw, draftRef.current);
+      setDraft(imported.draft);
+      setResult(false);
+      setCopied(false);
+      setMessage(
+        `수정 요청 ${imported.added}개를 불러왔습니다.${imported.conflicts ? ` 같은 항목의 내용이 다른 ${imported.conflicts}개는 이 기기의 편집 내용을 유지했습니다.` : " 기존 편집 내용도 유지했습니다."}`,
+      );
+    } catch (error) {
+      setMessage(
+        error instanceof Error
+          ? error.message
+          : "파일을 읽지 못했습니다. 현재 편집 내용은 유지됩니다.",
+      );
+    } finally {
+      if (transferInput.current) transferInput.current.value = "";
+    }
+  }
+
   return (
     <main lang="ko" className={styles.page}>
       <header className={styles.header}>
@@ -157,9 +205,14 @@ export function CopyReview({ records }: { records: CopyRecord[] }) {
           수정 내용은 이 브라우저에 저장됩니다. 요청을 보내주시면 확인한 뒤
           홈페이지에 반영합니다.
         </p>
-        <a className={styles.photoLink} href="/review/photos">
-          프로젝트 사진목록 · 메인 사진 선택
-        </a>
+        <nav className={styles.headerLinks} aria-label="자료실 이동">
+          <a className={styles.photoLink} href="/review">
+            전체 문서·자료실
+          </a>
+          <a className={styles.photoLink} href="/review/photos">
+            프로젝트 사진목록 · 메인 사진 선택
+          </a>
+        </nav>
       </header>
       <div className={styles.toolbar}>
         <div className={styles.tabs} role="group" aria-label="글 종류">
@@ -215,6 +268,42 @@ export function CopyReview({ records }: { records: CopyRecord[] }) {
       <p role="status" aria-live="polite" className={styles.status}>
         {ready ? message : "원고를 불러오고 있습니다."}
       </p>
+      <details className={styles.transfer}>
+        <summary>다른 기기에서 이어서 편집하기</summary>
+        <p className={styles.hint}>
+          수정 내용은 현재 브라우저에 저장됩니다. 이어하기 파일을 저장해 다른
+          기기로 옮긴 뒤, 이 화면에서 불러오세요. 같은 항목에 서로 다른 수정이
+          있으면 현재 기기의 편집 내용을 유지합니다.
+        </p>
+        <div className={styles.actions}>
+          <button
+            disabled={!ready}
+            onClick={() =>
+              download(
+                exportCopyReview(draft),
+                `WOVN-글목록-이어하기-${new Date().toISOString().replace(/[:.]/g, "-")}.json`,
+                "application/json",
+              )
+            }
+          >
+            이어하기 파일 저장
+          </button>
+          <button
+            disabled={!ready}
+            onClick={() => transferInput.current?.click()}
+          >
+            이어하기 파일 불러오기
+          </button>
+        </div>
+        <input
+          ref={transferInput}
+          hidden
+          type="file"
+          accept=".json,application/json"
+          aria-label="글목록 이어하기 파일"
+          onChange={(e) => void loadTransfer(e.target.files?.[0])}
+        />
+      </details>
       {undo && !edits.has(undo.id) && (
         <button
           className={styles.undo}
@@ -245,7 +334,10 @@ export function CopyReview({ records }: { records: CopyRecord[] }) {
             <button onClick={copy}>
               {copied ? "복사 완료 ✓" : "요청 내용 복사"}
             </button>
-            <button onClick={share}>휴대폰으로 공유</button>
+            <button onClick={share}>공유하기</button>
+            <button onClick={() => download(request, "WOVN-글변경요청.txt")}>
+              요청서 파일 저장
+            </button>
           </div>
           {copied && <p>복사했습니다. ChatGPT 대화에 붙여넣어 주세요.</p>}
           <textarea

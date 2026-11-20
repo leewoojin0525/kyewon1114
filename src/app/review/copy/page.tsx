@@ -18,7 +18,16 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default async function CopyReviewPage() {
+export default async function CopyReviewPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ kind?: string }>;
+}) {
+  const { kind } = await searchParams;
+  const initialKind =
+    kind === "project" || kind === "studio" || kind === "journal"
+      ? kind
+      : "all";
   const [projects, settings, bundle, articles] = await Promise.all([
     listPublic("projects"),
     listPublic("settings"),
@@ -31,6 +40,7 @@ export default async function CopyReviewPage() {
   );
   return (
     <CopyReview
+      initialKind={initialKind}
       records={publicCopyReview(
         projects,
         settings[0],

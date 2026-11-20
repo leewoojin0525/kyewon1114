@@ -44,6 +44,17 @@
   text-decoration: underline;
   text-underline-offset: 4px;
 }
+.headerLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+}
+.transfer {
+  margin: 16px 0 22px;
+  padding: 0 16px 12px;
+  background: #f7f9f5;
+  border-radius: 6px;
+}
 .toolbar {
   position: sticky;
   top: 0;
@@ -54,7 +65,7 @@
 }
 .tabs {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 8px;
 }
 .page button,
@@ -164,6 +175,9 @@
   object-fit: cover;
   border-radius: 3px;
   flex-shrink: 0;
+}
+.cardHeader > div {
+  min-width: 0;
 }
 .code {
   color: #747c72;
@@ -349,10 +363,11 @@
   }
   .tabs {
     gap: 6px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .tabs button {
     padding: 9px 4px;
-    font-size: 12px;
+    font-size: 14px;
   }
   .tabs b {
     margin-left: 3px;

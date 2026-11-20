@@ -90,9 +90,10 @@ function validValues(value: unknown): value is CopyValues {
 export function restoreCopyDraft(raw: string | null): {
   draft: CopyDraft;
   warning: string;
+  valid: boolean;
 } {
   const empty: CopyDraft = { schemaVersion: 1, edits: [] };
-  if (!raw) return { draft: empty, warning: "" };
+  if (!raw) return { draft: empty, warning: "", valid: true };
   try {
     const parsed = JSON.parse(raw);
     if (
@@ -142,6 +143,7 @@ export function restoreCopyDraft(raw: string | null): {
       };
     });
     return {
+      valid: true,
       draft: { schemaVersion: 1, edits: edits.filter(copyEditChanged) },
       warning: edits.length
         ? "이 브라우저에 저장한 수정 요청을 불러왔습니다."
@@ -149,10 +151,64 @@ export function restoreCopyDraft(raw: string | null): {
     };
   } catch {
     return {
+      valid: false,
       draft: empty,
       warning: "저장 내용을 읽지 못했습니다. 현재 원고를 표시합니다.",
     };
   }
+}
+
+export function exportCopyReview(draft: CopyDraft) {
+  const checked = restoreCopyDraft(JSON.stringify(draft));
+  if (!checked.valid) throw new Error("저장할 수정 내용을 확인해주세요.");
+  return JSON.stringify(
+    { type: "wovn-copy-review", schemaVersion: 1, draft: checked.draft },
+    null,
+    2,
+  );
+}
+
+/** Keep local work on conflicts; imported drafts retain their reviewed versions. */
+export function importCopyReview(raw: string, current: CopyDraft) {
+  if (raw.length > 8_000_000) throw new Error("이어하기 파일이 너무 큽니다.");
+  let value;
+  try {
+    value = JSON.parse(raw);
+  } catch {
+    throw new Error("글목록에서 저장한 이어하기 파일을 선택해주세요.");
+  }
+  if (
+    value?.type !== "wovn-copy-review" ||
+    value.schemaVersion !== 1 ||
+    !value.draft
+  )
+    throw new Error("글목록에서 저장한 이어하기 파일을 선택해주세요.");
+  const checked = restoreCopyDraft(JSON.stringify(value.draft));
+  if (!checked.valid)
+    throw new Error(
+      "파일의 수정 내용을 읽지 못했습니다. 현재 편집 내용은 유지됩니다.",
+    );
+  const edits = new Map(current.edits.map((edit) => [edit.id, edit]));
+  let added = 0,
+    conflicts = 0;
+  for (const edit of checked.draft.edits) {
+    const local = edits.get(edit.id);
+    if (local) {
+      if (JSON.stringify(local) !== JSON.stringify(edit)) conflicts++;
+    } else {
+      edits.set(edit.id, edit);
+      added++;
+    }
+  }
+  if (edits.size > 200)
+    throw new Error(
+      "합친 수정 항목이 너무 많습니다. 현재 편집 내용은 유지됩니다.",
+    );
+  return {
+    draft: { schemaVersion: 1 as const, edits: [...edits.values()] },
+    added,
+    conflicts,
+  };
 }
 
 export function copyReviewRequest(draft: CopyDraft, records: CopyRecord[]) {

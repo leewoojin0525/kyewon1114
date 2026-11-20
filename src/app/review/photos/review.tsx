@@ -317,7 +317,10 @@ export function PhotoReview({ snapshot }: { snapshot: PhotoReviewSnapshot }) {
             alt="WOVN STUDIO"
           />
         </a>
-        <a href="/review/copy">글 목록 · 수정 요청</a>
+        <nav className={styles.headerLinks} aria-label="자료실 이동">
+          <a href="/review">전체 문서·자료실</a>
+          <a href="/review/copy">글 목록 · 수정 요청</a>
+        </nav>
         <h1>프로젝트 사진목록</h1>
         <p>
           {snapshot.projects.length}개 프로젝트 · 게시 중{" "}

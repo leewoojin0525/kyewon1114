@@ -9,6 +9,8 @@ import {
   restoreCopyDraft,
   copyReviewRequest,
   copyEditStale,
+  exportCopyReview,
+  importCopyReview,
   type CopyDraft,
 } from "../src/lib/copy-review";
 import {
@@ -47,6 +49,72 @@ const translations: CopyTranslations = {
   ],
 };
 const records = publicCopyReview([project], undefined, translations);
+
+test("cross-device copy files preserve reviewed sources, hidden requests and Unicode", () => {
+  const edit = newCopyEdit(records[0]);
+  edit.values.ko = "공간과 일상 — 모바일 수정 문장";
+  edit.note = "영문도 함께 다듬어주세요.";
+  edit.hide = true;
+  const draft: CopyDraft = { schemaVersion: 1, edits: [edit] };
+  const imported = importCopyReview(exportCopyReview(draft), {
+    schemaVersion: 1,
+    edits: [],
+  });
+  assert.deepEqual(imported.draft, draft);
+  assert.equal(imported.added, 1);
+  assert.equal(imported.conflicts, 0);
+  assert.equal(imported.draft.edits[0].expectedVersion, 5);
+  assert.match(
+    copyReviewRequest(imported.draft, [{ ...records[0], version: 6 }]),
+    /기준 공개 버전: 5 \/ 현재 확인한 버전: 6/,
+  );
+});
+
+test("cross-device copy import rejects unrelated or malformed files without altering local work", () => {
+  const local: CopyDraft = {
+    schemaVersion: 1,
+    edits: [{ ...newCopyEdit(records[0]), note: "기존 메모" }],
+  };
+  const before = structuredClone(local);
+  for (const raw of [
+    "invalid",
+    "null",
+    JSON.stringify({
+      type: "wovn-photo-review",
+      schemaVersion: 1,
+      draft: local,
+    }),
+    JSON.stringify({
+      type: "wovn-copy-review",
+      schemaVersion: 1,
+      draft: {
+        schemaVersion: 1,
+        edits: [{ ...local.edits[0], expectedVersion: 0 }],
+      },
+    }),
+  ]) {
+    assert.throws(() => importCopyReview(raw, local));
+    assert.deepEqual(local, before);
+  }
+  assert.throws(() => importCopyReview(" ".repeat(8_000_001), local));
+});
+
+test("copy import merges new items while preserving conflicting local edits", () => {
+  const saved = { ...newCopyEdit(records[0]), note: "다른 기기의 메모" };
+  const local = { ...saved, note: "현재 기기의 메모" };
+  const other = { ...saved, id: "studio:motto", code: "S01" };
+  const result = importCopyReview(
+    exportCopyReview({ schemaVersion: 1, edits: [saved, other] }),
+    { schemaVersion: 1, edits: [local] },
+  );
+  assert.equal(result.added, 1);
+  assert.equal(result.conflicts, 1);
+  assert.deepEqual(result.draft.edits, [local, other]);
+  assert.equal(
+    importCopyReview(exportCopyReview(result.draft), result.draft).conflicts,
+    0,
+  );
+});
 
 test("mobile copy projects only current publications and matching Korean counterparts", () => {
   assert.equal(records.length, 1);
