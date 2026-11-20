@@ -8,6 +8,7 @@ export async function generateMetadata({ params }: Props) {
   const { doc } = await publicBySlug("projects", (await params).slug);
   if (!doc) return {};
   const [m] = await mediaInfo([imagesIn(doc.data)[0].id]);
+  const image = m?.derivatives.at(-1);
   return {
     title: doc.data.seoTitle || doc.data.title,
     description: doc.data.seoDescription || doc.data.summary,
@@ -15,7 +16,7 @@ export async function generateMetadata({ params }: Props) {
     openGraph: {
       title: doc.data.title,
       description: doc.data.summary,
-      images: m ? [`/media/${m.derivatives.at(-1).key}`] : [],
+      images: image ? [`/media/${image.key}`] : [],
     },
   };
 }

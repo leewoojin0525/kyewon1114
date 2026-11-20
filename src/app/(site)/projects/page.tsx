@@ -1,6 +1,6 @@
-import Link from "next/link";
+import { IntentLink as Link } from "@/components/intent-link";
 import { listPublic } from "@/lib/content";
-import { EmptyState, ProjectCard } from "@/components/editorial";
+import { EmptyState, ProjectCards } from "@/components/editorial";
 export const metadata = {
   title: "Projects",
   description: "A selection of spatial design and architecture projects.",
@@ -28,11 +28,11 @@ export default async function Projects({
         </div>
       </div>
       {projects.length ? (
-        <div className="project-grid photo-grid">
-          {projects.slice(0, limit).map((p, i) => (
-            <ProjectCard key={p.id} doc={p} index={i} />
-          ))}
-        </div>
+        <ProjectCards
+          documents={projects.slice(0, limit)}
+          className="project-grid photo-grid"
+          priorityCount={2}
+        />
       ) : (
         <EmptyState />
       )}

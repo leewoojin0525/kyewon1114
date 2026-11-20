@@ -1,4 +1,4 @@
-import { mediaInfo } from "@/lib/media";
+import { mediaInfo, type MediaInfo } from "@/lib/media";
 import { type Photo } from "@/lib/model";
 import { Gallery, ZoomImage } from "./gallery";
 export async function PhotoImage({
@@ -6,13 +6,17 @@ export async function PhotoImage({
   priority = false,
   className = "",
   sizes = "100vw",
+  preloaded,
 }: {
   photo: Photo;
   priority?: boolean;
   className?: string;
   sizes?: string;
+  preloaded?: ReadonlyMap<string, MediaInfo>;
 }) {
-  const [media] = await mediaInfo([photo.id]);
+  const media = preloaded
+    ? preloaded.get(photo.id)
+    : (await mediaInfo([photo.id]))[0];
   if (!media) return null;
   const derivatives = media.derivatives as {
     width: number;
@@ -20,7 +24,12 @@ export async function PhotoImage({
     key: string;
   }[];
   const largest = derivatives.at(-1)!;
-  const mobile = photo.mobileId ? (await mediaInfo([photo.mobileId]))[0] : null;
+  if (!largest) return null;
+  const mobile = photo.mobileId
+    ? preloaded
+      ? preloaded.get(photo.mobileId)
+      : (await mediaInfo([photo.mobileId]))[0]
+    : null;
   return (
     <ZoomImage id={photo.id}>
       <picture
@@ -64,11 +73,12 @@ export async function PhotoGallery({ photos }: { photos: Photo[] }) {
   const media = await mediaInfo(photos.map((p) => p.id));
   const items = photos.flatMap((p) => {
     const m = media.find((m) => m.id === p.id);
-    if (!m) return [];
+    const image = m?.derivatives.at(-1);
+    if (!m || !image) return [];
     return [
       {
         ...p,
-        src: `/media/${m.derivatives.at(-1).key}`,
+        src: `/media/${image.key}`,
         width: m.width,
         height: m.height,
       },

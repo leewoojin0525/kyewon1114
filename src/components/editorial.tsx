@@ -1,9 +1,10 @@
-import Link from "next/link";
+import { DiagonalArrow } from "@/components/diagonal-arrow";
+import { IntentLink as Link } from "./intent-link";
 import { PhotoImage } from "./photos";
 import { GallerySurface } from "./gallery";
 import { ProjectSlideshow } from "./project-slideshow";
 import { Prose } from "./prose";
-import { mediaInfo } from "@/lib/media";
+import { mediaInfo, type MediaInfo } from "@/lib/media";
 import { imagesIn, type Content, type Publication } from "@/lib/model";
 export function SectionTitle({
   number,
@@ -24,7 +25,10 @@ export function SectionTitle({
       </h2>
       {href && (
         <Link href={href}>
-          {label} <span>↗</span>
+          {label}{" "}
+          <span>
+            <DiagonalArrow />
+          </span>
         </Link>
       )}
     </div>
@@ -55,7 +59,9 @@ export function EmptyState({
         href={type === "projects" ? "/studio" : "/contact"}
       >
         {type === "projects" ? "About the studio" : "Get in touch"}{" "}
-        <span>↗</span>
+        <span>
+          <DiagonalArrow />
+        </span>
       </Link>
     </div>
   );
@@ -63,9 +69,13 @@ export function EmptyState({
 export async function ProjectCard({
   doc,
   index = 0,
+  preloaded,
+  priority = false,
 }: {
   doc: Publication;
   index?: number;
+  preloaded?: ReadonlyMap<string, MediaInfo>;
+  priority?: boolean;
 }) {
   const d = doc.data;
   const cover = doc.kind === "projects" ? imagesIn(d)[0] : d.hero;
@@ -79,6 +89,8 @@ export async function ProjectCard({
         {cover && (
           <PhotoImage
             photo={cover}
+            priority={priority}
+            preloaded={preloaded}
             className="card-image"
             sizes="(max-width:767px) 100vw, 50vw"
           />
@@ -98,19 +110,51 @@ export async function ProjectCard({
             )}
           </div>
           <span className="card-arrow" aria-hidden>
-            ↗
+            <DiagonalArrow />
           </span>
         </div>
       </Link>
     </article>
   );
 }
+export async function ProjectCards({
+  documents,
+  className,
+  priorityCount = 0,
+}: {
+  documents: Publication[];
+  className: string;
+  priorityCount?: number;
+}) {
+  const ids = documents.flatMap((doc) => {
+    const cover =
+      doc.kind === "projects" ? imagesIn(doc.data)[0] : doc.data.hero;
+    return cover ? [cover.id, ...(cover.mobileId ? [cover.mobileId] : [])] : [];
+  });
+  const media = await mediaInfo([...new Set(ids)]);
+  const preloaded = new Map(media.map((item) => [item.id, item]));
+  return (
+    <div className={className}>
+      {documents.map((doc, index) => (
+        <ProjectCard
+          key={doc.id}
+          doc={doc}
+          index={index}
+          preloaded={preloaded}
+          priority={index < priorityCount}
+        />
+      ))}
+    </div>
+  );
+}
 export async function BodyBlocks({
   data,
   photosOnly = false,
+  preloaded,
 }: {
   data: Content;
   photosOnly?: boolean;
+  preloaded?: ReadonlyMap<string, MediaInfo>;
 }) {
   return (
     <div className="editorial-body">
@@ -123,7 +167,7 @@ export async function BodyBlocks({
           >
             {b.type === "image" && b.image && (
               <figure>
-                <PhotoImage photo={b.image} />
+                <PhotoImage photo={b.image} preloaded={preloaded} />
                 {b.image.caption && <figcaption>{b.image.caption}</figcaption>}
               </figure>
             )}
@@ -133,7 +177,7 @@ export async function BodyBlocks({
                   (p, j) =>
                     p && (
                       <figure key={j}>
-                        <PhotoImage photo={p} />
+                        <PhotoImage photo={p} preloaded={preloaded} />
                         {p.caption && <figcaption>{p.caption}</figcaption>}
                       </figure>
                     ),
@@ -172,14 +216,18 @@ export async function Detail({
   const d = doc.data;
   const photos = imagesIn(d);
   const slideshow = doc.kind === "projects";
-  const media = await mediaInfo(photos.map((p) => p.id));
+  const media = await mediaInfo(
+    photos.flatMap((p) => [p.id, ...(p.mobileId ? [p.mobileId] : [])]),
+  );
+  const preloaded = new Map(media.map((m) => [m.id, m]));
   const items = photos.flatMap((p) => {
-    const m = media.find((m) => m.id === p.id);
-    return m
+    const m = preloaded.get(p.id);
+    const image = m?.derivatives.at(-1);
+    return m && image
       ? [
           {
             ...p,
-            src: `/media/${m.derivatives.at(-1).key}`,
+            src: `/media/${image.key}`,
             width: m.width,
             height: m.height,
           },
@@ -212,8 +260,17 @@ export async function Detail({
           )}
         </div>
         <h1>{d.title}</h1>
-        {slideshow ? <ProjectSlideshow key={`${doc.id}:${doc.version}`} items={items} /> : d.hero && (
-          <PhotoImage photo={d.hero} priority className="detail-hero" />
+        {slideshow ? (
+          <ProjectSlideshow key={`${doc.id}:${doc.version}`} items={items} />
+        ) : (
+          d.hero && (
+            <PhotoImage
+              photo={d.hero}
+              priority
+              className="detail-hero"
+              preloaded={preloaded}
+            />
+          )
         )}
         {doc.kind === "journal" && (
           <div className="detail-intro">
@@ -225,12 +282,30 @@ export async function Detail({
                 target="_blank"
                 rel="noreferrer"
               >
-                Source archive ↗
+                Source archive <DiagonalArrow />
               </a>
             )}
           </div>
         )}
-        {!slideshow && <BodyBlocks data={d} photosOnly={doc.kind === "projects"} />}
+        {!slideshow && (
+          <BodyBlocks
+            data={d}
+            photosOnly={doc.kind === "projects"}
+            preloaded={preloaded}
+          />
+        )}
+        {slideshow && d.blocks.some((b) => b.type === "text") && (
+          <div className="project-description wrap">
+            {d.blocks
+              .filter((b) => b.type === "text")
+              .map((b, i) => (
+                <section key={i} data-reveal>
+                  {b.heading && <h2>{b.heading}</h2>}
+                  <Prose body={b.body} />
+                </section>
+              ))}
+          </div>
+        )}
         <div className="detail-cta">
           <h2>
             Your next space
@@ -241,7 +316,10 @@ export async function Detail({
             className="text-link"
             href={`/contact?project=${encodeURIComponent(d.title)}`}
           >
-            Discuss a project <span>↗</span>
+            Discuss a project{" "}
+            <span>
+              <DiagonalArrow />
+            </span>
           </Link>
         </div>
       </article>

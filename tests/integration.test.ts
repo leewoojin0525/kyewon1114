@@ -888,3 +888,44 @@ test("Press: 단일 지면과 편집 순서·상단 고정은 재발행 뒤에�
     content.workflow(owner, invalid.id, "publish", invalid.version),
   );
 });
+
+test("Press pagination returns four published snapshots and clamps page bounds", async () => {
+  let firstId = "";
+  for (let i = 0; i < 5; i++) {
+    const saved = await content.createContent(owner, "journal", {
+      ...validData(`paged-press-${i}`),
+      slug: `paged-press-${i}`,
+      category: "잡지 게재",
+      order: 10 + i,
+      blocks: [],
+    });
+    await content.workflow(owner, saved.id, "publish", saved.version);
+    if (i === 0) {
+      firstId = saved.id;
+      const draft = await content.getDraft(saved.id);
+      await content.saveDraft(owner, saved.id, 1, {
+        ...draft!.data,
+        title: "Unpublished revision",
+      });
+    }
+  }
+  const all = await content.listPublic("journal");
+  const first = await content.publicPressPage(1);
+  const second = await content.publicPressPage(2);
+  assert.equal(first.total, 8);
+  assert.equal(first.pages, 2);
+  assert.equal(first.documents.length, 4);
+  assert.equal(second.documents.length, 4);
+  assert.deepEqual(
+    [...first.documents, ...second.documents].map((p) => p.id),
+    all.map((p) => p.id),
+  );
+  assert.notEqual(
+    [...first.documents, ...second.documents].find((p) => p.id === firstId)
+      ?.data.title,
+    "Unpublished revision",
+  );
+  assert.equal((await content.publicPressPage(-1)).page, 1);
+  assert.equal((await content.publicPressPage(Number.NaN)).page, 1);
+  assert.equal((await content.publicPressPage(99999)).page, 2);
+});

@@ -1,6 +1,8 @@
 "use client";
 
-import Link from "next/link";
+import { DiagonalArrow } from "@/components/diagonal-arrow";
+
+import { IntentLink as Link } from "@/components/intent-link";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { useDecodedCarousel, type CarouselImage } from "./use-decoded-carousel";
 
@@ -94,7 +96,8 @@ export function HomeHero({ slides }: { slides: HomeSlide[] }) {
       aria-roledescription="carousel"
       onFocusCapture={(event) => {
         // The play control owns its toggle; focus must not toggle it twice.
-        if (!(event.target as HTMLElement).closest(".hero-play")) setPaused(true);
+        if (!(event.target as HTMLElement).closest(".hero-play"))
+          setPaused(true);
       }}
       onKeyDown={(event) => {
         if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
@@ -150,7 +153,10 @@ export function HomeHero({ slides }: { slides: HomeSlide[] }) {
       <div className="home-hero-caption">
         <h1>
           <Link href={slide.href}>
-            {slide.title} <span aria-hidden="true">↗</span>
+            {slide.title}{" "}
+            <span aria-hidden="true">
+              <DiagonalArrow />
+            </span>
           </Link>
         </h1>
       </div>

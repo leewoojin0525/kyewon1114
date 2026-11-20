@@ -1,4 +1,7 @@
 "use client";
+
+import { DiagonalArrow } from "@/components/diagonal-arrow";
+
 import Link from "next/link";
 import { useRef, useState } from "react";
 export function ContactForm({
@@ -127,7 +130,7 @@ export function ContactForm({
             started.current = Date.now();
           }}
         >
-          Start a new inquiry ↗
+          Start a new inquiry <DiagonalArrow />
         </button>
       </div>
     );
@@ -282,7 +285,9 @@ export function ContactForm({
         disabled={busy || !enabled}
       >
         {busy ? "Saving your inquiry…" : "Send inquiry"}
-        <span>↗</span>
+        <span>
+          <DiagonalArrow />
+        </span>
       </button>
       <p className="caption">
         Submitting this form begins a conversation. It does not constitute a

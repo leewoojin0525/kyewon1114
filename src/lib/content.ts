@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { cache } from "react";
 import { type PoolClient } from "pg";
 import { AppError, audit, owner, pool, transaction, type Actor } from "./db";
 import {
@@ -15,6 +16,7 @@ import {
   type Publication,
 } from "./model";
 import { isLive } from "./env";
+import { settingsPublicationAllowed } from "./settings-publication";
 
 async function requireAssets(db: PoolClient, data: Record<string, unknown>) {
   const ids = mediaIds(data);
@@ -26,7 +28,12 @@ async function requireAssets(db: PoolClient, data: Record<string, unknown>) {
   if (result.rowCount !== ids.length)
     throw new AppError(422, "존재하지 않거나 삭제된 사진이 포함되어 있습니다.");
 }
-async function validatePublication(db: PoolClient, kind: Kind, raw: unknown) {
+async function validatePublication(
+  db: PoolClient,
+  kind: Kind,
+  raw: unknown,
+  previousSettings?: unknown,
+) {
   const data = parseContent(kind, raw);
   if (!data.publishReviewed)
     throw new AppError(
@@ -37,13 +44,7 @@ async function validatePublication(db: PoolClient, kind: Kind, raw: unknown) {
     throw new AppError(422, "DEMO 자료는 운영 환경에서 공개할 수 없습니다.");
   if (kind === "settings") {
     const s = settingsSchema.parse(data);
-    if (
-      isLive &&
-      (!s.logoApproved ||
-        !s.privacyApproved ||
-        !s.email ||
-        !s.privacyProcessors)
-    )
+    if (isLive && !settingsPublicationAllowed(s, previousSettings))
       throw new AppError(
         422,
         "승인 로고·실제 연락처·개인정보 처리 안내가 필요합니다.",
@@ -204,7 +205,21 @@ export async function workflow(
       [id, sourceVersion],
     );
     if (!snapshot) throw new AppError(404, "이전 버전을 찾을 수 없습니다.");
-    const data = await validatePublication(db, row.kind, snapshot.data);
+    const previousSettings =
+      row.kind === "settings" && row.published_version
+        ? (
+            await db.query(
+              "SELECT data FROM w_versions WHERE content_id=$1 AND version=$2",
+              [id, row.published_version],
+            )
+          ).rows[0]?.data
+        : undefined;
+    const data = await validatePublication(
+      db,
+      row.kind,
+      snapshot.data,
+      previousSettings,
+    );
     const collision = await db.query(
       "SELECT content_id FROM w_redirects WHERE kind=$1 AND slug=$2 AND content_id<>$3",
       [row.kind, data.slug, id],
@@ -273,20 +288,31 @@ export async function history(id: string) {
     )
   ).rows;
 }
-export async function listPublic(kind: Kind): Promise<Publication[]> {
+// Deduplicate metadata/layout/page reads within one React server render only.
+// This is not a persistent publication or media-permission cache.
+export const listPublic = cache(async function listPublic(
+  kind: Kind,
+): Promise<Publication[]> {
   const { rows } = await pool.query(
     "SELECT c.id,c.kind,c.published_version AS version,c.published_at,v.data FROM w_content c JOIN w_versions v ON v.content_id=c.id AND v.version=c.published_version WHERE c.kind=$1 AND ($2::boolean=false OR COALESCE((v.data->>'demo')::boolean,false)=false) ORDER BY CASE WHEN c.kind='journal' THEN COALESCE((v.data->>'pinned')::boolean,false)::int ELSE 0 END DESC, CASE WHEN c.kind IN ('projects','journal') THEN COALESCE((v.data->>'order')::int,9999) ELSE 0 END ASC, CASE WHEN c.kind='projects' THEN COALESCE((v.data->>'year')::int,0) ELSE 0 END DESC, c.published_at DESC",
     [kind, isLive],
   );
   return rows;
-}
+});
 export async function publicSettings() {
   const list = await listPublic("settings");
   return settingsSchema.parse(list[0]?.data || {});
 }
-export async function publicBySlug(kind: Kind, slug: string) {
-  const documents = await listPublic(kind);
-  const doc = documents.find((p) => p.data.slug === slug);
+export const publicBySlug = cache(async function publicBySlug(
+  kind: Kind,
+  slug: string,
+) {
+  const {
+    rows: [doc],
+  } = await pool.query<Publication>(
+    "SELECT c.id,c.kind,c.published_version AS version,c.published_at,v.data FROM w_content c JOIN w_versions v ON v.content_id=c.id AND v.version=c.published_version WHERE c.kind=$1 AND c.public_slug=$2 AND ($3::boolean=false OR COALESCE((v.data->>'demo')::boolean,false)=false)",
+    [kind, slug, isLive],
+  );
   if (doc) return { doc };
   const {
     rows: [redirect],
@@ -295,4 +321,32 @@ export async function publicBySlug(kind: Kind, slug: string) {
     [kind, slug],
   );
   return { redirect: redirect?.public_slug as string | undefined };
-}
+});
+
+export const publicPressPage = cache(async function publicPressPage(page = 1) {
+  const pageSize = 4;
+  const requested = Number.isSafeInteger(page) && page > 0 ? page : 1;
+  // Count and page come from one snapshot. Only four article bodies leave the DB.
+  const {
+    rows: [row],
+  } = await pool.query<{
+    total: number;
+    page: number;
+    documents: Publication[];
+  }>(
+    `WITH visible AS (
+       SELECT c.id,c.kind,c.published_version AS version,c.published_at,v.data
+       FROM w_content c JOIN w_versions v ON v.content_id=c.id AND v.version=c.published_version
+       WHERE c.kind='journal' AND ($1::boolean=false OR COALESCE((v.data->>'demo')::boolean,false)=false)
+     ), totals AS (SELECT count(*)::int AS total FROM visible), bounds AS (
+       SELECT total, LEAST($2::int,GREATEST(1,ceil(total::numeric/$3::int)::int)) AS page FROM totals
+     )
+     SELECT total,page,COALESCE((SELECT json_agg(p) FROM (
+       SELECT * FROM visible ORDER BY COALESCE((data->>'pinned')::boolean,false) DESC,
+       COALESCE((data->>'order')::int,9999),published_at DESC,id
+       LIMIT $3::int OFFSET ((SELECT page FROM bounds)-1)*$3::int
+     ) p),'[]'::json) AS documents FROM bounds`,
+    [isLive, Math.min(requested, 1000000), pageSize],
+  );
+  return { ...row, pages: Math.max(1, Math.ceil(row.total / pageSize)) };
+});

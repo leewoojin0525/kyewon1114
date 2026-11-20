@@ -1,3 +1,4 @@
+import { DiagonalArrow } from "@/components/diagonal-arrow";
 import { ContactForm } from "@/components/contact-form";
 import { publicSettings } from "@/lib/content";
 import { isLive } from "@/lib/env";
@@ -31,7 +32,7 @@ export default async function Contact({
           <span className="eyebrow">DIRECT CONTACT</span>
           {s.email ? (
             <a className="email-link" href={`mailto:${s.email}`}>
-              {s.email} ↗
+              {s.email} <DiagonalArrow />
             </a>
           ) : (
             <p className="caption">Contact details will be available soon.</p>

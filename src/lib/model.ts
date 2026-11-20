@@ -113,6 +113,20 @@ export const settingsSchema = z.object({
     .string()
     .max(4000)
     .default("공간 기획·디자인\n디자인 과정 관리\n프로젝트 관리"),
+  studioMotto: z
+    .string()
+    .max(300)
+    .default("Connecting people.\nShaping spaces."),
+  studioStatements: z
+    .array(
+      z.object({
+        heading: z.string().min(1).max(150),
+        body: z.string().min(1).max(4000),
+      }),
+    )
+    .max(8)
+    .default([]),
+  studioServiceDescriptions: z.array(z.string().max(2000)).max(8).default([]),
   studioProcess: z
     .string()
     .max(4000)
@@ -154,7 +168,9 @@ export function imagesIn(data: Record<string, unknown>): Photo[] {
   ].filter(Boolean) as Photo[];
   if (!d.galleryOrder?.length) return photos;
   const rank = new Map(d.galleryOrder.map((id, index) => [id, index]));
-  return photos.sort((a, b) => (rank.get(a.id) ?? Infinity) - (rank.get(b.id) ?? Infinity));
+  return photos.sort(
+    (a, b) => (rank.get(a.id) ?? Infinity) - (rank.get(b.id) ?? Infinity),
+  );
 }
 export function mediaIds(data: Record<string, unknown>) {
   return [

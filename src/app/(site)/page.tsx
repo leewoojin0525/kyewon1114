@@ -1,16 +1,18 @@
-import Link from "next/link";
+import { DiagonalArrow } from "@/components/diagonal-arrow";
+import { IntentLink as Link } from "@/components/intent-link";
 import { imagesIn } from "@/lib/model";
-import { listPublic, publicSettings } from "@/lib/content";
+import { listPublic, publicSettings, publicPressPage } from "@/lib/content";
 import { HomeHero, type HomeSlide } from "@/components/home-hero";
 import { mediaInfo } from "@/lib/media";
-import { SectionTitle, ProjectCard, EmptyState } from "@/components/editorial";
+import { SectionTitle, ProjectCards, EmptyState } from "@/components/editorial";
 export const metadata = { alternates: { canonical: "/" } };
 export default async function Home() {
-  const [projects, journals, settings] = await Promise.all([
+  const [projects, press, settings] = await Promise.all([
     listPublic("projects"),
-    listPublic("journal"),
+    publicPressPage(1),
     publicSettings(),
   ]);
+  const journals = press.documents;
   const selected = projects.filter((project) =>
     settings.selectedProjects.includes(project.id),
   );
@@ -33,7 +35,8 @@ export default async function Home() {
   const slides: HomeSlide[] = heroProjects.flatMap((project) => {
     const photo = imagesIn(project.data)[0];
     const media = heroMedia.find((item) => item.id === photo?.id);
-    if (!photo || !media) return [];
+    const image = media?.derivatives.at(-1);
+    if (!photo || !media || !image) return [];
     const mobileCenters: Record<string, number> = {
       "kyobo-hottracks-2015": 50,
       "samjeon-165-18": 53,
@@ -44,7 +47,7 @@ export default async function Home() {
         id: photo.id,
         title: project.data.title,
         href: `/projects/${project.data.slug}`,
-        src: `/media/${media.derivatives.at(-1).key}`,
+        src: `/media/${image.key}`,
         srcSet: media.derivatives
           .map(
             (item: { key: string; width: number }) =>
@@ -103,7 +106,7 @@ export default async function Home() {
                 className="circle-link"
                 aria-label="About the studio"
               >
-                ↗
+                <DiagonalArrow />
               </Link>
             </div>
           </>
@@ -112,11 +115,10 @@ export default async function Home() {
       <section className="section portfolio-selection">
         <SectionTitle number="01" title="SELECTED PROJECTS" href="/projects" />
         {picks.length ? (
-          <div className="project-grid selected-grid photo-grid">
-            {picks.map((p, i) => (
-              <ProjectCard key={p.id} doc={p} index={i} />
-            ))}
-          </div>
+          <ProjectCards
+            documents={picks}
+            className="project-grid selected-grid photo-grid"
+          />
         ) : (
           <EmptyState />
         )}
@@ -126,13 +128,18 @@ export default async function Home() {
           <span className="eyebrow">02 / THE STUDIO</span>
           <div>
             <h2>
-              Connecting people.
-              <br />
-              Shaping spaces.
+              {settings.studioMotto.split("\n").map((line, index) => (
+                <span key={index} style={{ display: "block" }}>
+                  {line}
+                </span>
+              ))}
             </h2>
             <p>{settings.studioIntro}</p>
             <Link className="text-link" href="/studio">
-              Our approach <span>↗</span>
+              Our approach{" "}
+              <span>
+                <DiagonalArrow />
+              </span>
             </Link>
           </div>
           <span className="weave-mark" aria-hidden>
@@ -143,11 +150,10 @@ export default async function Home() {
       <section className="section wrap">
         <SectionTitle number="03" title="PRESS" href="/press" />
         {journals.length ? (
-          <div className="journal-grid">
-            {journals.slice(0, 3).map((p) => (
-              <ProjectCard key={p.id} doc={p} />
-            ))}
-          </div>
+          <ProjectCards
+            documents={journals.slice(0, 3)}
+            className="journal-grid"
+          />
         ) : (
           <EmptyState type="journal" />
         )}

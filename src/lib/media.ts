@@ -156,7 +156,14 @@ export async function uploadPhoto(
     throw e;
   }
 }
-export async function mediaInfo(ids: string[]) {
+export type MediaInfo = {
+  id: string;
+  width: number;
+  height: number;
+  derivatives: { width: number; height: number; key: string }[];
+  created_at: Date;
+};
+export async function mediaInfo(ids: string[]): Promise<MediaInfo[]> {
   if (!ids.length) return [];
   return (
     await pool.query(

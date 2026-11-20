@@ -1061,6 +1061,91 @@ export function Admin() {
                           onChange={(v) => update("studioIntro", v)}
                         />
                       </div>
+                      <div className="full">
+                        <Field
+                          label="스튜디오 모토 (영문)"
+                          value={edit.data.studioMotto || ""}
+                          rows={2}
+                          onChange={(v) => update("studioMotto", v)}
+                        />
+                        {(edit.data.studioStatements || []).map(
+                          (
+                            statement: { heading: string; body: string },
+                            i: number,
+                          ) => (
+                            <div className="admin-card" key={i}>
+                              <Field
+                                label={`소개 단락 ${i + 1} 제목 (영문)`}
+                                value={statement.heading}
+                                onChange={(v) =>
+                                  update(
+                                    "studioStatements",
+                                    edit.data.studioStatements.map(
+                                      (s: typeof statement, j: number) =>
+                                        j === i ? { ...s, heading: v } : s,
+                                    ),
+                                  )
+                                }
+                              />
+                              <Field
+                                label="본문 (영문)"
+                                value={statement.body}
+                                rows={5}
+                                onChange={(v) =>
+                                  update(
+                                    "studioStatements",
+                                    edit.data.studioStatements.map(
+                                      (s: typeof statement, j: number) =>
+                                        j === i ? { ...s, body: v } : s,
+                                    ),
+                                  )
+                                }
+                              />
+                              <button
+                                type="button"
+                                className="btn small"
+                                onClick={() =>
+                                  update(
+                                    "studioStatements",
+                                    edit.data.studioStatements.filter(
+                                      (_: unknown, j: number) => j !== i,
+                                    ),
+                                  )
+                                }
+                              >
+                                단락 삭제
+                              </button>
+                            </div>
+                          ),
+                        )}
+                        {(edit.data.studioStatements || []).length < 8 && (
+                          <button
+                            type="button"
+                            className="btn small"
+                            onClick={() =>
+                              update("studioStatements", [
+                                ...(edit.data.studioStatements || []),
+                                {
+                                  heading: "New statement",
+                                  body: "Write the studio statement here.",
+                                },
+                              ])
+                            }
+                          >
+                            소개 단락 추가
+                          </button>
+                        )}
+                      </div>
+                      <Field
+                        label="서비스 설명 (영문, 한 줄에 하나)"
+                        value={(edit.data.studioServiceDescriptions || []).join(
+                          "\n",
+                        )}
+                        rows={5}
+                        onChange={(v) =>
+                          update("studioServiceDescriptions", v.split("\n"))
+                        }
+                      />
                       <Field
                         label="서비스 (한 줄에 하나)"
                         value={edit.data.studioServices}

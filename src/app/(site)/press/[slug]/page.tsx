@@ -7,13 +7,14 @@ export async function generateMetadata({ params }: Props) {
   const { doc } = await publicBySlug("journal", (await params).slug);
   if (!doc) return {};
   const [m] = await mediaInfo([doc.data.hero!.id]);
+  const image = m?.derivatives.at(-1);
   return {
     title: doc.data.seoTitle || doc.data.title,
     description: doc.data.seoDescription || doc.data.summary,
     alternates: { canonical: `/press/${doc.data.slug}` },
     openGraph: {
       title: doc.data.title,
-      images: m ? [`/media/${m.derivatives.at(-1).key}`] : [],
+      images: image ? [`/media/${image.key}`] : [],
     },
   };
 }
