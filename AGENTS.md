@@ -123,3 +123,9 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - The user selected the recommended TOP 8 (A01–A08) for the homepage, in that order. This supersedes the temporary three-photo rule and permits specific published photographs independent of project covers. Store the reviewed selection in settings; project gallery orders and first-photo covers remain unchanged. Removed/unpublished photos must not survive in the homepage selection.
 - Add concise What We Do and How We Work introductions to Studio, with corresponding Korean/English editable originals and PDFs in the existing Drive hub.
 - Press must scroll continuously through all articles. This supersedes the four-article pagination request: keep the restrained card grid, remove next/previous page controls, fetch only cover metadata for the index, and lazy-load offscreen cover images. The homepage may still show a short Press selection.
+
+## Photo-list homepage selection, 2026-11-20
+
+- The private project photo review list also selects up to eight specific homepage photographs, starting with the currently published selection. Homepage ordering is independent of project gallery order and covers.
+- Keep homepage selection and order in the browser and include the complete ordered references in the existing photo-change request download. This never publishes directly. Preserve existing project edits and deleted-photo history; a deleted photo requires an explicit restoration request before it can be selected for the homepage.
+- Before regenerating the review HTML, export published selections with `scripts/export-photo-review-home.ts --production` to `.data/current-home-selection.json`; never expose operational settings or private originals in the review file.

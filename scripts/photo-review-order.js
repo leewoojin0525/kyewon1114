@@ -27,6 +27,7 @@ function prepareMove(slug) {
   document.querySelector('#project').value = slug;
   document.querySelector('#search').value = '';
   document.querySelector('#resolution').value = '';
+  document.querySelector('#usage').value = '';
   filter();
 }
 let dragging = null;

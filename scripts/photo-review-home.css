@@ -1,0 +1,161 @@
+#home-selection {
+  margin: 24px 4vw;
+  padding: 22px;
+  border: 1px solid #c9d8cd;
+  background: #f3f6f1;
+  scroll-margin-top: 16px;
+}
+.home-heading-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+#home-heading {
+  margin: 0;
+  font-size: 20px;
+}
+#home-count {
+  color: #237248;
+  font-size: 14px;
+}
+#home-selection p {
+  margin: 10px 0 14px;
+}
+#home-list {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding: 4px 2px 12px;
+  margin: 0;
+  list-style: none;
+  scroll-snap-type: x proximity;
+}
+.home-item {
+  flex: 0 0 174px;
+  padding: 10px;
+  background: white;
+  border: 1px solid #c9d8cd;
+  scroll-snap-align: start;
+}
+.home-item strong {
+  display: block;
+  color: #237248;
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+.home-picture {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: #f1f0ed;
+}
+.home-picture img {
+  display: block;
+  width: 100%;
+  height: 100px;
+  object-fit: contain;
+}
+.home-ref {
+  display: block;
+  font-weight: 600;
+  margin-top: 8px;
+}
+.home-title {
+  display: block;
+  font-size: 11px;
+  color: #666;
+  min-height: 32px;
+  line-height: 1.4;
+  margin: 4px 0;
+}
+.home-item-controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+}
+.home-item-controls button {
+  min-height: 44px;
+  padding: 6px 4px;
+  font-size: 12px;
+}
+.home-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+.home-actions button {
+  min-height: 44px;
+  font-size: 13px;
+}
+#home-download {
+  background: #237248;
+  color: white;
+  border-color: #237248;
+}
+#home-message {
+  color: #265e3b;
+  font-size: 13px;
+  min-height: 21px;
+}
+.home-choice {
+  margin-bottom: 14px;
+}
+.home-toggle {
+  width: 100%;
+  min-height: 44px;
+  border-color: #9cb6a4;
+  color: #245d38;
+  font-size: 13px;
+}
+.home-toggle[aria-pressed="true"] {
+  background: #237248;
+  border-color: #237248;
+  color: white;
+}
+.home-choice small {
+  display: block;
+  color: #6a736b;
+  font-size: 11px;
+  line-height: 1.5;
+  margin-top: 5px;
+}
+.home-jump {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 4px 8px;
+  font-size: 12px;
+}
+button:focus-visible,
+a:focus-visible,
+select:focus-visible {
+  outline: 2px solid #237248;
+  outline-offset: 3px;
+}
+@media (max-width: 600px) {
+  #home-selection {
+    padding: 16px;
+  }
+  #home-heading {
+    font-size: 18px;
+  }
+  nav {
+    gap: 6px;
+    padding: 10px 4vw;
+  }
+  nav select {
+    max-width: 100%;
+  }
+  nav #project {
+    width: 100%;
+  }
+  #search {
+    width: 100%;
+  }
+  .home-item {
+    flex-basis: 168px;
+  }
+}
