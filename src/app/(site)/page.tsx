@@ -1,6 +1,6 @@
 import { DiagonalArrow } from "@/components/diagonal-arrow";
 import { IntentLink as Link } from "@/components/intent-link";
-import { imagesIn } from "@/lib/model";
+import { homePhotographs } from "@/lib/home-selection";
 import { listPublic, publicSettings, publicPressPage } from "@/lib/content";
 import { HomeHero, type HomeSlide } from "@/components/home-hero";
 import { mediaInfo } from "@/lib/media";
@@ -16,24 +16,10 @@ export default async function Home() {
   const selected = projects.filter((project) =>
     settings.selectedProjects.includes(project.id),
   );
-  const hero =
-    projects.find((p) => p.id === settings.featuredProject) ||
-    selected[0] ||
-    projects[0];
   const picks = (selected.length ? selected : projects).slice(0, 6);
-  const heroProjects = [
-    "kyobo-hottracks-2015",
-    "samjeon-165-18",
-    "gwangjang-apartment",
-  ].flatMap(
-    (slug) => projects.find((project) => project.data.slug === slug) ?? [],
-  );
-  if (!heroProjects.length && hero) heroProjects.push(hero);
-  const heroMedia = await mediaInfo(
-    heroProjects.flatMap((project) => imagesIn(project.data)[0]?.id ?? []),
-  );
-  const slides: HomeSlide[] = heroProjects.flatMap((project) => {
-    const photo = imagesIn(project.data)[0];
+  const heroPhotos = homePhotographs(projects, settings);
+  const heroMedia = await mediaInfo(heroPhotos.map(({ photo }) => photo.id));
+  const slides: HomeSlide[] = heroPhotos.flatMap(({ project, photo }) => {
     const media = heroMedia.find((item) => item.id === photo?.id);
     const image = media?.derivatives.at(-1);
     if (!photo || !media || !image) return [];

@@ -50,6 +50,11 @@ export default async function Studio() {
             </h2>
             <span className="eyebrow">DESIGN + PM</span>
           </div>
+          {s.studioServicesIntro && (
+            <p className="studio-section-intro" data-reveal>
+              {s.studioServicesIntro}
+            </p>
+          )}
           <div className="service-list">
             {s.studioServices
               .split("\n")
@@ -81,6 +86,11 @@ export default async function Studio() {
             <span>02</span>HOW WE WORK
           </h2>
         </div>
+        {s.studioProcessIntro && (
+          <p className="studio-section-intro" data-reveal>
+            {s.studioProcessIntro}
+          </p>
+        )}
         <ol className="process-list">
           {s.studioProcess
             .split("\n")

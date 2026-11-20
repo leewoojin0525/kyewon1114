@@ -93,6 +93,17 @@ export const settingsSchema = z.object({
   slug: z.literal("site").default("site"),
   featuredProject: z.string().uuid().optional(),
   selectedProjects: z.array(z.string().uuid()).max(6).default([]),
+  homeSlides: z
+    .array(
+      z.object({ projectId: z.string().uuid(), photoId: z.string().uuid() }),
+    )
+    .max(8)
+    .refine(
+      (slides) =>
+        new Set(slides.map((slide) => slide.photoId)).size === slides.length,
+      "메인 사진은 중복할 수 없습니다.",
+    )
+    .default([]),
   companyName: z.string().max(150).default("(주)우븐디자인스튜디오"),
   email: z.union([z.email(), z.literal("")]).default(""),
   phone: z.string().max(50).default(""),
@@ -127,6 +138,8 @@ export const settingsSchema = z.object({
     .max(8)
     .default([]),
   studioServiceDescriptions: z.array(z.string().max(2000)).max(8).default([]),
+  studioServicesIntro: z.string().max(2000).default(""),
+  studioProcessIntro: z.string().max(2000).default(""),
   studioProcess: z
     .string()
     .max(4000)

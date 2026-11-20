@@ -2,11 +2,14 @@ import { isDeepStrictEqual } from "node:util";
 import { settingsSchema } from "./model";
 
 const editorialFields = new Set([
+  "homeSlides",
   "studioIntro",
   "studioMotto",
   "studioStatements",
   "studioServices",
   "studioServiceDescriptions",
+  "studioServicesIntro",
+  "studioProcessIntro",
   "studioProcess",
   "biography",
 ]);

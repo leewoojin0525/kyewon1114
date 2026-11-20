@@ -604,6 +604,30 @@ test("공개 필수 항목 검증, 직원 설정 공개 거부", async () => {
     ).status,
     200,
   );
+  const project = await content.createContent(owner, "projects", {
+    ...validData(),
+    slug: "home-photo-authority",
+    blocks: [],
+  });
+  await content.workflow(owner, project.id, "publish", project.version);
+  const invalid = await content.saveDraft(owner, s.id, 1, {
+    publishReviewed: true,
+    homeSlides: [{ projectId: project.id, photoId: randomUUID() }],
+  });
+  await assert.rejects(
+    content.workflow(owner, s.id, "publish", invalid.version),
+    { status: 422 },
+  );
+  const valid = await content.saveDraft(owner, s.id, invalid.version, {
+    publishReviewed: true,
+    homeSlides: [{ projectId: project.id, photoId: asset.id }],
+  });
+  await content.workflow(owner, s.id, "publish", valid.version);
+  await content.workflow(owner, project.id, "unpublish", project.version);
+  await assert.rejects(
+    content.workflow(owner, s.id, "publish", valid.version),
+    { status: 422 },
+  );
 });
 test("사진 중심 프로젝트는 부가 정보 없이 발행하며 잘못된 유형과 미확인 권리는 거절", async () => {
   const data = {
@@ -928,4 +952,14 @@ test("Press pagination returns four published snapshots and clamps page bounds",
   assert.equal((await content.publicPressPage(-1)).page, 1);
   assert.equal((await content.publicPressPage(Number.NaN)).page, 1);
   assert.equal((await content.publicPressPage(99999)).page, 2);
+  const index = await content.publicPressIndex();
+  assert.deepEqual(
+    index.map((p) => p.id),
+    all.map((p) => p.id),
+  );
+  assert.ok(index.every((p) => p.data.blocks.length === 0));
+  assert.equal(
+    index.find((p) => p.id === firstId)?.data.title,
+    "paged-press-0",
+  );
 });

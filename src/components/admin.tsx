@@ -1137,6 +1137,18 @@ export function Admin() {
                         )}
                       </div>
                       <Field
+                        label="What We Do 소개 (영문)"
+                        value={edit.data.studioServicesIntro || ""}
+                        rows={4}
+                        onChange={(v) => update("studioServicesIntro", v)}
+                      />
+                      <Field
+                        label="How We Work 소개 (영문)"
+                        value={edit.data.studioProcessIntro || ""}
+                        rows={4}
+                        onChange={(v) => update("studioProcessIntro", v)}
+                      />
+                      <Field
                         label="서비스 설명 (영문, 한 줄에 하나)"
                         value={(edit.data.studioServiceDescriptions || []).join(
                           "\n",

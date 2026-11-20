@@ -50,11 +50,17 @@ async function validatePublication(
         "승인 로고·실제 연락처·개인정보 처리 안내가 필요합니다.",
       );
     const ids = [
-      ...new Set([s.featuredProject, ...s.selectedProjects].filter(Boolean)),
+      ...new Set(
+        [
+          s.featuredProject,
+          ...s.selectedProjects,
+          ...s.homeSlides.map((slide) => slide.projectId),
+        ].filter(Boolean),
+      ),
     ];
     if (ids.length) {
       const result = await db.query(
-        "SELECT id FROM w_content WHERE kind='projects' AND published_version IS NOT NULL AND id=ANY($1::uuid[]) FOR SHARE",
+        "SELECT c.id, v.data FROM w_content c JOIN w_versions v ON v.content_id=c.id AND v.version=c.published_version WHERE c.kind='projects' AND c.id=ANY($1::uuid[]) FOR SHARE OF c",
         [ids],
       );
       if (result.rowCount !== ids.length)
@@ -62,6 +68,17 @@ async function validatePublication(
           422,
           "홈에는 현재 공개된 프로젝트만 선택할 수 있습니다.",
         );
+      for (const slide of s.homeSlides) {
+        const project = result.rows.find((row) => row.id === slide.projectId);
+        if (
+          !project ||
+          !imagesIn(project.data).some((photo) => photo.id === slide.photoId)
+        )
+          throw new AppError(
+            422,
+            "메인 사진은 해당 프로젝트에 현재 공개된 사진만 선택할 수 있습니다.",
+          );
+      }
     }
   } else {
     const d = documentSchema.parse(data);
@@ -322,6 +339,27 @@ export const publicBySlug = cache(async function publicBySlug(
   );
   return { redirect: redirect?.public_slug as string | undefined };
 });
+
+/** The continuous index transfers cover metadata, never every article's scan list. */
+export const publicPressIndex = cache(
+  async function publicPressIndex(): Promise<Publication[]> {
+    const { rows } = await pool.query<Publication>(
+      `SELECT c.id,c.kind,c.published_version AS version,c.published_at,
+       jsonb_build_object('title',v.data->'title','slug',v.data->'slug','hero',v.data->'hero',
+         'publicationName',COALESCE(v.data->'publicationName','""'::jsonb),
+         'publicationIssue',COALESCE(v.data->'publicationIssue','""'::jsonb)) AS data
+     FROM w_content c JOIN w_versions v ON v.content_id=c.id AND v.version=c.published_version
+     WHERE c.kind='journal' AND ($1::boolean=false OR COALESCE((v.data->>'demo')::boolean,false)=false)
+     ORDER BY COALESCE((v.data->>'pinned')::boolean,false) DESC,
+       COALESCE((v.data->>'order')::int,9999),c.published_at DESC,c.id`,
+      [isLive],
+    );
+    return rows.map((row) => ({
+      ...row,
+      data: documentSchema.parse(row.data),
+    }));
+  },
+);
 
 export const publicPressPage = cache(async function publicPressPage(page = 1) {
   const pageSize = 4;

@@ -9,6 +9,14 @@ test("editorial revisions preserve the exact operational state of an existing pu
     ...previous,
     studioIntro: "Revised introduction",
     studioStatements: [{ heading: "People", body: "Everyday life." }],
+    studioServicesIntro: "From direction to detail.",
+    studioProcessIntro: "Listen, consider and refine.",
+    homeSlides: [
+      {
+        projectId: "550e8400-e29b-41d4-a716-446655440000",
+        photoId: "550e8400-e29b-41d4-a716-446655440001",
+      },
+    ],
   };
   assert.equal(settingsPublicationAllowed(copy, previous), true);
   assert.equal(settingsPublicationAllowed(copy), false);
