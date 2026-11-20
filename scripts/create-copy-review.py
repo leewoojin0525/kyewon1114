@@ -69,7 +69,10 @@ for i, s in enumerate(studio['process']):
     add_studio(f'process-{i+1}', f'HOW WE WORK — {i+1}단계', s, source_path=f'studioProcess.{i}')
 add_studio('biography', '대표 이력·학력·수상·전시', studio['biography'], source_path='biography')
 
-assert len(records) == 44 and len({r['id'] for r in records}) == 44
+project_count = len(projects['projects'])
+studio_count = 5 + len(studio['statements']) + len(studio['services']) + len(studio['process'])
+assert len(records) == project_count + studio_count
+assert len({r['id'] for r in records}) == len(records)
 assert all(set(r['original']) == {f['key'] for f in r['fields']} for r in records)
 data = dict(schemaVersion=1, edition='2026-11-20', verifiedAt=baseline['checkedAt'], records=records)
 serialized = json.dumps(data, ensure_ascii=False, separators=(',', ':')).replace('<','\\u003c').replace('>','\\u003e').replace('&','\\u0026')
@@ -80,4 +83,4 @@ document = document.replace('/* REVIEW_JS */', (root/'scripts/copy-review.js').r
 output = root/'output/review/WOVN-Copy-Review.html'
 output.parent.mkdir(parents=True, exist_ok=True)
 output.write_text(document)
-print(json.dumps(dict(file=str(output), projects=27, studio=17, total=len(records), bytes=output.stat().st_size)))
+print(json.dumps(dict(file=str(output), projects=project_count, studio=studio_count, total=len(records), bytes=output.stat().st_size)))
