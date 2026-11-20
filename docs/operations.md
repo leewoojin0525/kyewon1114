@@ -165,6 +165,15 @@ project versions through the normal Owner workflow. Keep stable photo reference
 numbers when updating the reference map for new published media. The existing
 private desktop review remains the source for deletion history and originals.
 
+The mobile request applied on 2026-11-20 advances reviewed settings from version
+7 to 8 and changes only `homeSlides`: KyoboD-031, P-house-001, Samjeon-020,
+Tied-009, AlmostHome-021, Soyo-016, Seed-001, Consilience-010. All 27 project
+snapshots remain unchanged. The current selection export, private photo review
+HTML and existing Drive Start document were updated together. Prior TOP 8
+recommendations are reference material, not the current selection. Existing
+browser drafts are preserved; `선택·순서` → `현재 메인으로` explicitly replaces
+the browser selection with the latest published slideshow.
+
 ### Mobile bilingual copy review
 
 `/review/copy` reads current public project and Studio snapshots. It lets the
